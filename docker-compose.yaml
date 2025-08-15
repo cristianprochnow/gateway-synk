@@ -1,0 +1,10 @@
+services:
+  app:
+    container_name: synk_gateway
+    build: .
+    ports:
+      - ${PORT}:8080
+    volumes:
+      - ./:/app
+    command: go run .
+    env_file: .env
