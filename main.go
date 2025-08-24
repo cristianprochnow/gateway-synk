@@ -1,7 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"synk/gateway/app"
+)
 
 func main() {
-	fmt.Println("> running app...")
+	app.Run()
 }
