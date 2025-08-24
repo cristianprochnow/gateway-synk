@@ -1,7 +1,9 @@
 package main
 
-import "synk/gateway/src/util"
+import (
+	"synk/gateway/app"
+)
 
 func main() {
-	util.Log("starting app")
+	app.Run()
 }
