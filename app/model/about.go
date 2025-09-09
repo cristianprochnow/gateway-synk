@@ -1,6 +1,8 @@
 package model
 
-import "database/sql"
+import (
+	"database/sql"
+)
 
 type About struct {
 	db *sql.DB
@@ -15,5 +17,5 @@ func NewAbout(db *sql.DB) *About {
 func (a *About) Ping() bool {
 	pingErr := a.db.Ping()
 
-	return pingErr != nil
+	return pingErr == nil
 }
