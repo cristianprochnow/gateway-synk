@@ -8,13 +8,23 @@ import (
 	"github.com/go-sql-driver/mysql"
 )
 
-func InitDB() (*sql.DB, error) {
+func InitDB(testing bool) (*sql.DB, error) {
 	cfg := mysql.NewConfig()
 
-	cfg.User = os.Getenv("DB_USER")
-	cfg.Passwd = os.Getenv("DB_PASS")
+	user := os.Getenv("DB_USER")
+	pass := os.Getenv("DB_PASS")
+	address := os.Getenv("DB_HOST") + ":" + os.Getenv("DB_PORT")
+
+	if testing {
+		user = os.Getenv("DB_USER_TEST")
+		pass = os.Getenv("DB_PASS_TEST")
+		address = os.Getenv("DB_HOST_TEST") + ":" + os.Getenv("DB_PORT_TEST")
+	}
+
+	cfg.User = user
+	cfg.Passwd = pass
 	cfg.Net = "tcp"
-	cfg.Addr = os.Getenv("DB_HOST") + ":" + os.Getenv("DB_PORT")
+	cfg.Addr = address
 	cfg.DBName = "synk"
 
 	util.Log("connecting do database")
