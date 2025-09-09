@@ -13,7 +13,7 @@ type Service struct {
 func Run() {
 	util.Log("starting app")
 
-	db, dbErr := InitDB()
+	db, dbErr := InitDB(false)
 
 	if dbErr != nil {
 		log.Fatal(dbErr)
