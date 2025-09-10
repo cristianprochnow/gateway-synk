@@ -15,12 +15,6 @@ func InitDB(testing bool) (*sql.DB, error) {
 	pass := os.Getenv("DB_PASS")
 	address := os.Getenv("DB_HOST") + ":" + os.Getenv("DB_PORT")
 
-	if testing {
-		user = os.Getenv("DB_USER_TEST")
-		pass = os.Getenv("DB_PASS_TEST")
-		address = os.Getenv("DB_HOST_TEST") + ":" + os.Getenv("DB_PORT_TEST")
-	}
-
 	cfg.User = user
 	cfg.Passwd = pass
 	cfg.Net = "tcp"
