@@ -29,7 +29,7 @@ func (p *Posts) List() ([]PostsList, error) {
 
 	rows, rowsErr := p.db.Query(
 		`SELECT post.post_id, post.post_name, template.template_name,
-                int_profile.int_profile_name, post.created_at, NULL status
+                int_profile.int_profile_name, post.created_at, "" status
         FROM post
         LEFT JOIN template ON template.template_id = post.template_id
         LEFT JOIN integration_profile int_profile ON int_profile.int_profile_id = post.int_profile_id
@@ -59,6 +59,7 @@ func (p *Posts) List() ([]PostsList, error) {
 			&post.TemplateName,
 			&post.IntProfileName,
 			&post.CreatedAt,
+			&post.Status,
 		)
 
 		if exception != nil {
