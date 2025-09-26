@@ -29,7 +29,7 @@ func NewPublication(db *sql.DB) *Publication {
 }
 
 func (p *Publication) CountByPost(postId int) (map[PublicationStatus]int, error) {
-	var posts map[PublicationStatus]int
+	posts := map[PublicationStatus]int{}
 
 	rows, rowsErr := p.db.Query(
 		`SELECT COUNT(*) total, publication.publication_status status
