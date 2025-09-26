@@ -24,6 +24,8 @@ func NewPosts(db *sql.DB) *Posts {
 }
 
 func (p *Posts) HandleList(w http.ResponseWriter, r *http.Request) {
+	w = EnableCors(w)
+
 	w.Header().Set("Content-Type", "application/json")
 
 	postList, postErr := p.model.List()
