@@ -6,3 +6,8 @@ type Response struct {
 	Info  any    `json:"info"`
 	List  []any  `json:"list"`
 }
+
+type ResponseHeader struct {
+	Ok    bool   `json:"ok"`
+	Error string `json:"error"`
+}
