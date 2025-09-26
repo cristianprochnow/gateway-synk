@@ -24,7 +24,7 @@ func NewPosts(db *sql.DB) *Posts {
 	return &posts
 }
 
-func (p *Posts) list() ([]PostsList, error) {
+func (p *Posts) List() ([]PostsList, error) {
 	var posts []PostsList
 
 	rows, rowsErr := p.db.Query(
