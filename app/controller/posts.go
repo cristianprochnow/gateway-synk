@@ -12,6 +12,11 @@ type Posts struct {
 	model *model.Posts
 }
 
+type HandleListResponse struct {
+	Resource ResponseHeader    `json:"resource"`
+	Data     []model.PostsList `json:"posts"`
+}
+
 func NewPosts(db *sql.DB) *Posts {
 	posts := Posts{model: model.NewPosts(db)}
 
@@ -21,11 +26,18 @@ func NewPosts(db *sql.DB) *Posts {
 func (p *Posts) HandleList(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	response := Response{
-		Ok: true,
-		Info: map[string]string{
-			"show": "show",
+	postList, postErr := p.model.List()
+
+	response := HandleListResponse{
+		Resource: ResponseHeader{
+			Ok: true,
 		},
+		Data: postList,
+	}
+
+	if postErr != nil {
+		response.Resource.Ok = false
+		response.Resource.Error = postErr.Error()
 	}
 
 	jsonResp, jsonErr := json.Marshal(response)
