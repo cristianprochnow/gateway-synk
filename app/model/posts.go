@@ -3,6 +3,7 @@ package model
 import (
 	"database/sql"
 	"fmt"
+	"synk/gateway/app/util"
 )
 
 type Posts struct {
@@ -61,6 +62,8 @@ func (p *Posts) List() ([]PostsList, error) {
 			&post.CreatedAt,
 			&post.Status,
 		)
+
+		post.CreatedAt = util.ToTimeBR(post.CreatedAt)
 
 		if exception != nil {
 			return nil, fmt.Errorf("models.posts.list: %s", exception.Error())
