@@ -206,6 +206,7 @@ COLLATE = utf8mb4_bin;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `synk`.`post` (
   `post_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `post_name` VARCHAR(100) CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_bin' NOT NULL,
   `post_content` TEXT CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_bin' NOT NULL,
   `template_id` INT UNSIGNED NOT NULL,
   `int_profile_id` INT UNSIGNED NOT NULL,
