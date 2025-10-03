@@ -53,6 +53,6 @@ func (t *Templates) HandleBasicList(w http.ResponseWriter, r *http.Request) {
 
 	_, writeErr := w.Write(jsonResp)
 	if writeErr != nil {
-		util.LogRoute("/templates/basic", "error on response encoding")
+		util.LogRoute("/templates/basic", "error on response log")
 	}
 }
