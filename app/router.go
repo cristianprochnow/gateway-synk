@@ -11,10 +11,12 @@ func Router(service *Service) {
 	aboutController := controller.NewAbout(service.DB)
 	postController := controller.NewPosts(service.DB)
 	templateController := controller.NewTemplates(service.DB)
+	intProfileController := controller.NewIntProfiles(service.DB)
 
 	http.HandleFunc("GET /about", aboutController.HandleAbout)
 	http.HandleFunc("GET /post", postController.HandleList)
 	http.HandleFunc("GET /templates/basic", templateController.HandleBasicList)
+	http.HandleFunc("GET /int_profiles/basic", intProfileController.HandleBasicList)
 
 	util.Log("app running on port 8080 to " + os.Getenv("PORT"))
 
