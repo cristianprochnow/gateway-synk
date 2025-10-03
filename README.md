@@ -37,3 +37,90 @@ The easy way to run tests is just run `docker compose up -d` command to start pr
 	"list": null
 }
 ```
+
+## Get list of Posts
+
+> `GET` /post
+
+### Response
+
+```json
+{
+    "resource": {
+        "ok": true,
+        "error": ""
+    },
+    "posts": [
+        {
+            "post_id": 1,
+            "post_name": "SQL Webinar Announcement",
+            "template_name": "Marketing Announcement",
+            "int_profile_name": "Alice Marketing Profiles",
+            "created_at": "2025-09-25 21:20:37",
+            "status": "pending"
+        },
+        {
+            "post_id": 2,
+            "post_name": "Version 2.5 Release",
+            "template_name": "Tech Update Post",
+            "int_profile_name": "Bob Tech Profiles",
+            "created_at": "2025-09-25 21:20:37",
+            "status": "failed"
+        }
+    ]
+}
+```
+
+## Get list of Templates for dropdowns
+
+> `GET` /templates/basic
+
+### Response
+
+```json
+{
+    "resource": {
+        "ok": true,
+        "error": ""
+    },
+    "templates": [
+        {
+            "template_id": 1,
+            "template_name": "Marketing Announcement"
+        },
+        {
+            "template_id": 2,
+            "template_name": "Tech Update Post"
+        }
+    ]
+}
+```
+
+## Get list of Integration Profiles for dropdowns
+
+> `GET` /int_profiles/basic
+
+### Response
+
+```json
+{
+    "resource": {
+        "ok": true,
+        "error": ""
+    },
+    "int_profiles": [
+        {
+            "int_profile_id": 1,
+            "int_profile_name": "Alice Marketing Profiles",
+            "color_name": "Primary Blue",
+            "color_hex": "007BFF"
+        },
+        {
+            "int_profile_id": 2,
+            "int_profile_name": "Bob Tech Profiles",
+            "color_name": "Success Green",
+            "color_hex": "28A745"
+        }
+    ]
+}
+```
