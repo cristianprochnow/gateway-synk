@@ -24,9 +24,8 @@ func NewTemplates(db *sql.DB) *Templates {
 }
 
 func (t *Templates) HandleBasicList(w http.ResponseWriter, r *http.Request) {
-	w = EnableCors(w)
-
-	w.Header().Set("Content-Type", "application/json")
+	EnableCors(w)
+	SetJsonContentType(w)
 
 	templatesList, templatesErr := t.model.BasicList()
 
