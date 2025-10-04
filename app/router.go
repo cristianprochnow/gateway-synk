@@ -10,11 +10,21 @@ import (
 func Router(service *Service) {
 	aboutController := controller.NewAbout(service.DB)
 	postController := controller.NewPosts(service.DB)
+	templateController := controller.NewTemplates(service.DB)
+	intProfileController := controller.NewIntProfiles(service.DB)
 
 	http.HandleFunc("GET /about", aboutController.HandleAbout)
 	http.HandleFunc("GET /post", postController.HandleList)
+	http.HandleFunc("POST /post", postController.HandleCreate)
+	http.HandleFunc("PUT /post", postController.HandleUpdate)
+	http.HandleFunc("DELETE /post", postController.HandleDelete)
+	http.HandleFunc("GET /templates/basic", templateController.HandleBasicList)
+	http.HandleFunc("GET /int_profiles/basic", intProfileController.HandleBasicList)
 
 	util.Log("app running on port 8080 to " + os.Getenv("PORT"))
 
-	http.ListenAndServe(":8080", nil)
+	err := http.ListenAndServe(":8080", nil)
+	if err != nil {
+		util.Log("app failed on running on port 8080: " + err.Error())
+	}
 }

@@ -37,3 +37,175 @@ The easy way to run tests is just run `docker compose up -d` command to start pr
 	"list": null
 }
 ```
+
+## Get list of Posts
+
+> `GET` /post
+
+### Response
+
+```json
+{
+    "resource": {
+        "ok": true,
+        "error": ""
+    },
+    "posts": [
+        {
+            "post_id": 1,
+            "post_name": "SQL Webinar Announcement",
+            "template_name": "Marketing Announcement",
+            "int_profile_name": "Alice Marketing Profiles",
+            "created_at": "2025-09-25 21:20:37",
+            "status": "pending"
+        },
+        {
+            "post_id": 2,
+            "post_name": "Version 2.5 Release",
+            "template_name": "Tech Update Post",
+            "int_profile_name": "Bob Tech Profiles",
+            "created_at": "2025-09-25 21:20:37",
+            "status": "failed"
+        }
+    ]
+}
+```
+
+## Create a Post
+
+> `POST` /post
+
+### Request
+
+```json
+{
+	"post_name": "Post name show",
+	"post_content": "conteúdo show",
+	"template_id": 1,
+	"int_profile_id": 2
+}
+```
+
+### Response
+
+```json
+{
+    "resource": {
+        "ok": true,
+        "error": ""
+    },
+    "post": {
+        "post_id": 3
+    }
+}
+```
+
+## Update a Post
+
+> `PUT` /post
+
+### Request
+
+```json
+{
+    "post_id": 1,
+    "post_name": "Post name atualizado",
+    "post_content": "conteúdo atualizado",
+    "template_id": 1,
+    "int_profile_id": 1
+}
+```
+
+### Response
+
+```json
+{
+    "resource": {
+        "ok": true,
+        "error": ""
+    },
+    "post": {
+        "rows_affected": 1
+    }
+}
+```
+
+## Delete a Post
+
+> `DELETE` /post
+
+### Request
+
+```json
+{
+    "post_id": 3
+}
+```
+
+### Response
+
+```json
+{
+    "resource": {
+        "ok": true,
+        "error": ""
+    },
+    "post": {
+        "rows_affected": 1
+    }
+}
+```
+
+## Get list of Templates for dropdowns
+
+> `GET` /templates/basic
+
+### Response
+
+```json
+{
+    "resource": {
+        "ok": true,
+        "error": ""
+    },
+    "templates": [
+        {
+            "template_id": 1,
+            "template_name": "Marketing Announcement"
+        },
+        {
+            "template_id": 2,
+            "template_name": "Tech Update Post"
+        }
+    ]
+}
+```
+
+## Get list of Integration Profiles for dropdowns
+
+> `GET` /int_profiles/basic
+
+### Response
+
+```json
+{
+    "resource": {
+        "ok": true,
+        "error": ""
+    },
+    "int_profiles": [
+        {
+            "int_profile_id": 1,
+            "int_profile_name": "Alice Marketing Profiles",
+            "color_name": "Primary Blue",
+            "color_hex": "007BFF"
+        },
+        {
+            "int_profile_id": 2,
+            "int_profile_name": "Bob Tech Profiles",
+            "color_name": "Success Green",
+            "color_hex": "28A745"
+        }
+    ]
+}
+```
