@@ -100,6 +100,36 @@ The easy way to run tests is just run `docker compose up -d` command to start pr
 }
 ```
 
+## Update a Post
+
+> `PUT` /post
+
+### Request
+
+```json
+{
+    "post_id": 1,
+    "post_name": "Post name atualizado",
+    "post_content": "conteúdo atualizado",
+    "template_id": 1,
+    "int_profile_id": 1
+}
+```
+
+### Response
+
+```json
+{
+    "resource": {
+        "ok": true,
+        "error": ""
+    },
+    "post": {
+        "rows_affected": 1
+    }
+}
+```
+
 ## Get list of Templates for dropdowns
 
 > `GET` /templates/basic
