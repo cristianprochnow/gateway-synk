@@ -28,6 +28,15 @@ type PostAddData struct {
 	CreatedAt    string `json:"created_at"`
 }
 
+type PostUpdateData struct {
+	PostId       int    `json:"post_id"`
+	PostName     string `json:"post_name"`
+	PostContent  string `json:"post_content"`
+	TemplateId   int    `json:"template_id"`
+	IntProfileId int    `json:"int_profile_id"`
+	UpdatedAt    string `json:"updated_at"`
+}
+
 type PostByIdData struct {
 	PostId int `json:"post_id"`
 }
@@ -125,6 +134,36 @@ func (p *Posts) Add(post PostAddData) (int, error) {
 	postId = int(id)
 
 	return postId, nil
+}
+
+func (p *Posts) Update(post PostUpdateData) (int, error) {
+	var rowsAffected int64
+
+	insertRes, insertErr := p.db.ExecContext(
+		context.Background(),
+		`UPDATE post
+        SET post_name = ?,
+            post_content = ?,
+            template_id = ?,
+            int_profile_id = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE post_id = ?`,
+		post.PostName, post.PostContent, post.TemplateId, post.IntProfileId, post.PostId,
+	)
+
+	if insertErr != nil {
+		return int(rowsAffected), fmt.Errorf("models.posts.update: %s", insertErr.Error())
+	}
+
+	rowsAffectedVal, exception := insertRes.RowsAffected()
+
+	if exception != nil {
+		return int(rowsAffected), fmt.Errorf("models.posts.update: %s", exception.Error())
+	}
+
+	rowsAffected = rowsAffectedVal
+
+	return int(rowsAffected), nil
 }
 
 func (p *Posts) ById(postId int) (PostByIdData, error) {
