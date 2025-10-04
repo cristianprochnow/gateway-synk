@@ -14,6 +14,10 @@ type TemplatesBasicList struct {
 	TemplateName string `json:"template_name"`
 }
 
+type TemplatesByIdData struct {
+	TemplateId int `json:"template_id"`
+}
+
 func NewTemplates(db *sql.DB) *Templates {
 	templates := Templates{db: db}
 
@@ -58,4 +62,38 @@ func (p *Templates) BasicList() ([]TemplatesBasicList, error) {
 	}
 
 	return templates, nil
+}
+
+func (p *Templates) ById(templateId int) (TemplatesByIdData, error) {
+	var template TemplatesByIdData
+
+	rows, rowsErr := p.db.Query(
+		`SELECT template_id
+        FROM template
+        WHERE template_id = ?`, templateId,
+	)
+
+	if rowsErr != nil {
+		return template, fmt.Errorf("models.templates.by_id: %s", rowsErr.Error())
+	}
+
+	defer rows.Close()
+
+	rowsErr = rows.Err()
+
+	if rowsErr != nil {
+		return template, fmt.Errorf("models.templates.by_id: %s", rowsErr.Error())
+	}
+
+	for rows.Next() {
+		exception := rows.Scan(
+			&template.TemplateId,
+		)
+
+		if exception != nil {
+			return template, fmt.Errorf("models.templates.by_id: %s", exception.Error())
+		}
+	}
+
+	return template, nil
 }
