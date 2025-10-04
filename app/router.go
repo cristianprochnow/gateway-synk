@@ -15,6 +15,7 @@ func Router(service *Service) {
 
 	http.HandleFunc("GET /about", aboutController.HandleAbout)
 	http.HandleFunc("GET /post", postController.HandleList)
+	http.HandleFunc("POST /post", postController.HandleCreate)
 	http.HandleFunc("GET /templates/basic", templateController.HandleBasicList)
 	http.HandleFunc("GET /int_profiles/basic", intProfileController.HandleBasicList)
 
