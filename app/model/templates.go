@@ -24,10 +24,10 @@ func NewTemplates(db *sql.DB) *Templates {
 	return &templates
 }
 
-func (p *Templates) BasicList() ([]TemplatesBasicList, error) {
+func (t *Templates) BasicList() ([]TemplatesBasicList, error) {
 	var templates []TemplatesBasicList
 
-	rows, rowsErr := p.db.Query(
+	rows, rowsErr := t.db.Query(
 		`SELECT template_id, template_name
         FROM template
         ORDER BY template_name`,
@@ -64,10 +64,10 @@ func (p *Templates) BasicList() ([]TemplatesBasicList, error) {
 	return templates, nil
 }
 
-func (p *Templates) ById(templateId int) (TemplatesByIdData, error) {
+func (t *Templates) ById(templateId int) (TemplatesByIdData, error) {
 	var template TemplatesByIdData
 
-	rows, rowsErr := p.db.Query(
+	rows, rowsErr := t.db.Query(
 		`SELECT template_id
         FROM template
         WHERE template_id = ?`, templateId,
