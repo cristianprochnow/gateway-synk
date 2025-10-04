@@ -28,6 +28,10 @@ type PostAddData struct {
 	CreatedAt    string `json:"created_at"`
 }
 
+type PostByIdData struct {
+	PostId int `json:"post_id"`
+}
+
 func NewPosts(db *sql.DB) *Posts {
 	posts := Posts{db: db}
 
@@ -121,4 +125,38 @@ func (p *Posts) Add(post PostAddData) (int, error) {
 	postId = int(id)
 
 	return postId, nil
+}
+
+func (p *Posts) ById(postId int) (PostByIdData, error) {
+	var post PostByIdData
+
+	rows, rowsErr := p.db.Query(
+		`SELECT post_id
+        FROM post
+        WHERE post_id = ?`, postId,
+	)
+
+	if rowsErr != nil {
+		return post, fmt.Errorf("models.posts.by_id: %s", rowsErr.Error())
+	}
+
+	defer rows.Close()
+
+	rowsErr = rows.Err()
+
+	if rowsErr != nil {
+		return post, fmt.Errorf("models.posts.by_id: %s", rowsErr.Error())
+	}
+
+	for rows.Next() {
+		exception := rows.Scan(
+			&post.PostId,
+		)
+
+		if exception != nil {
+			return post, fmt.Errorf("models.posts.by_id: %s", exception.Error())
+		}
+	}
+
+	return post, nil
 }
