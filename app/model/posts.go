@@ -1,6 +1,7 @@
 package model
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"synk/gateway/app/util"
@@ -17,6 +18,14 @@ type PostsList struct {
 	IntProfileName string            `json:"int_profile_name"`
 	CreatedAt      string            `json:"created_at"`
 	Status         PublicationStatus `json:"status"`
+}
+
+type PostAddData struct {
+	PostName     string `json:"post_name"`
+	PostContent  string `json:"post_content"`
+	TemplateId   int    `json:"template_id"`
+	IntProfileId int    `json:"int_profile_id"`
+	CreatedAt    string `json:"created_at"`
 }
 
 func NewPosts(db *sql.DB) *Posts {
@@ -87,4 +96,29 @@ func (p *Posts) List() ([]PostsList, error) {
 	}
 
 	return posts, nil
+}
+
+func (p *Posts) Add(post PostAddData) (int, error) {
+	var postId int
+
+	insertRes, insertErr := p.db.ExecContext(
+		context.Background(),
+		`INSERT INTO synk.post (post_name, post_content, template_id, int_profile_id)
+        VALUES (?, ?, ?, ?)`,
+		post.PostName, post.PostContent, post.TemplateId, post.IntProfileId,
+	)
+
+	if insertErr != nil {
+		return postId, fmt.Errorf("models.posts.add: %s", insertErr.Error())
+	}
+
+	id, exception := insertRes.LastInsertId()
+
+	if exception != nil {
+		return postId, fmt.Errorf("models.posts.add: %s", exception.Error())
+	}
+
+	postId = int(id)
+
+	return postId, nil
 }
