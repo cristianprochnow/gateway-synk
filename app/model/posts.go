@@ -56,6 +56,7 @@ func (p *Posts) List() ([]PostsList, error) {
         FROM post
         LEFT JOIN template ON template.template_id = post.template_id
         LEFT JOIN integration_profile int_profile ON int_profile.int_profile_id = post.int_profile_id
+        WHERE post.deleted_at IS NULL
         ORDER BY post.created_at DESC`,
 	)
 
@@ -147,7 +148,7 @@ func (p *Posts) Update(post PostUpdateData) (int, error) {
             template_id = ?,
             int_profile_id = ?,
             updated_at = CURRENT_TIMESTAMP
-        WHERE post_id = ?`,
+        WHERE post_id = ? AND deleted_at IS NULL`,
 		post.PostName, post.PostContent, post.TemplateId, post.IntProfileId, post.PostId,
 	)
 
@@ -166,13 +167,38 @@ func (p *Posts) Update(post PostUpdateData) (int, error) {
 	return int(rowsAffected), nil
 }
 
+func (p *Posts) Delete(postId int) (int, error) {
+	var rowsAffected int64
+
+	insertRes, insertErr := p.db.ExecContext(
+		context.Background(),
+		`UPDATE post
+        SET deleted_at = CURRENT_TIMESTAMP
+        WHERE post_id = ?`, postId,
+	)
+
+	if insertErr != nil {
+		return int(rowsAffected), fmt.Errorf("models.posts.delete: %s", insertErr.Error())
+	}
+
+	rowsAffectedVal, exception := insertRes.RowsAffected()
+
+	if exception != nil {
+		return int(rowsAffected), fmt.Errorf("models.posts.delete: %s", exception.Error())
+	}
+
+	rowsAffected = rowsAffectedVal
+
+	return int(rowsAffected), nil
+}
+
 func (p *Posts) ById(postId int) (PostByIdData, error) {
 	var post PostByIdData
 
 	rows, rowsErr := p.db.Query(
 		`SELECT post_id
         FROM post
-        WHERE post_id = ?`, postId,
+        WHERE post_id = ? AND deleted_at IS NULL`, postId,
 	)
 
 	if rowsErr != nil {
