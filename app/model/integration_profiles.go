@@ -16,16 +16,20 @@ type IntProfilesBasicList struct {
 	ColorHex       string `json:"color_hex"`
 }
 
+type IntProfilesByIdData struct {
+	IntProfileId int `json:"int_profile_id"`
+}
+
 func NewIntProfiles(db *sql.DB) *IntProfiles {
 	intProfiles := IntProfiles{db: db}
 
 	return &intProfiles
 }
 
-func (p *IntProfiles) BasicList() ([]IntProfilesBasicList, error) {
+func (ip *IntProfiles) BasicList() ([]IntProfilesBasicList, error) {
 	var intProfiles []IntProfilesBasicList
 
-	rows, rowsErr := p.db.Query(
+	rows, rowsErr := ip.db.Query(
 		`SELECT profile.int_profile_id, profile.int_profile_name,
             color.color_hex, color.color_name
         FROM integration_profile profile
@@ -64,4 +68,38 @@ func (p *IntProfiles) BasicList() ([]IntProfilesBasicList, error) {
 	}
 
 	return intProfiles, nil
+}
+
+func (ip *IntProfiles) ById(intProfileId int) (IntProfilesByIdData, error) {
+	var intProfile IntProfilesByIdData
+
+	rows, rowsErr := ip.db.Query(
+		`SELECT int_profile_id
+        FROM integration_profile
+        WHERE int_profile_id = ?`, intProfileId,
+	)
+
+	if rowsErr != nil {
+		return intProfile, fmt.Errorf("models.int_profile.by_id: %s", rowsErr.Error())
+	}
+
+	defer rows.Close()
+
+	rowsErr = rows.Err()
+
+	if rowsErr != nil {
+		return intProfile, fmt.Errorf("models.int_profile.by_id: %s", rowsErr.Error())
+	}
+
+	for rows.Next() {
+		exception := rows.Scan(
+			&intProfile.IntProfileId,
+		)
+
+		if exception != nil {
+			return intProfile, fmt.Errorf("models.int_profile.by_id: %s", exception.Error())
+		}
+	}
+
+	return intProfile, nil
 }
