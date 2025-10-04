@@ -36,6 +36,10 @@ type HandlePostUpdateRequest struct {
 	IntProfileId int    `json:"int_profile_id"`
 }
 
+type HandlePostDeleteRequest struct {
+	PostId int `json:"post_id"`
+}
+
 type HandlePostCreateResponse struct {
 	Resource ResponseHeader               `json:"resource"`
 	Data     CreatePostCreateDataResponse `json:"post"`
@@ -277,6 +281,79 @@ func (p *Posts) HandleUpdate(w http.ResponseWriter, r *http.Request) {
 		TemplateId:   post.TemplateId,
 		IntProfileId: post.IntProfileId,
 	})
+
+	if updateErr != nil {
+		response.Resource.Ok = false
+		response.Resource.Error = updateErr.Error()
+
+		WriteErrorResponse(w, response, "/posts", response.Resource.Error, http.StatusBadRequest)
+
+		return
+	}
+
+	response.Data.RowsAffected = rowsAffected
+
+	WriteSuccessResponse(w, response)
+}
+
+func (p *Posts) HandleDelete(w http.ResponseWriter, r *http.Request) {
+	EnableCors(w)
+	SetJsonContentType(w)
+
+	response := HandlePostUpdateResponse{
+		Resource: ResponseHeader{
+			Ok: true,
+		},
+		Data: UpdatePostDataResponse{},
+	}
+
+	bodyContent, bodyErr := io.ReadAll(r.Body)
+
+	if bodyErr != nil {
+		response.Resource.Ok = false
+		response.Resource.Error = "error on read delete body"
+
+		WriteErrorResponse(w, response, "/posts", response.Resource.Error, http.StatusBadRequest)
+
+		return
+	}
+
+	var post HandlePostDeleteRequest
+
+	jsonErr := json.Unmarshal(bodyContent, &post)
+
+	if jsonErr != nil {
+		response.Resource.Ok = false
+		response.Resource.Error = "some fields can be in invalid format"
+
+		WriteErrorResponse(w, response, "/posts", response.Resource.Error, http.StatusBadRequest)
+
+		return
+	}
+
+	hasAllData := post.PostId != 0
+
+	if !hasAllData {
+		response.Resource.Ok = false
+		response.Resource.Error = "fields post_id is required"
+
+		WriteErrorResponse(w, response, "/posts", response.Resource.Error, http.StatusBadRequest)
+
+		return
+	}
+
+	postById, _ := p.model.ById(post.PostId)
+
+	if postById.PostId == 0 {
+		response.Resource.Ok = false
+		response.Resource.Error = "post with id " + strconv.Itoa(post.PostId) + " not found"
+
+		WriteErrorResponse(w, response, "/posts", response.Resource.Error, http.StatusBadRequest)
+
+		return
+	}
+
+	rowsAffected, updateErr := p.model.Delete(post.PostId)
 
 	if updateErr != nil {
 		response.Resource.Ok = false
