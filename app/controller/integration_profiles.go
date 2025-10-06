@@ -24,7 +24,6 @@ func NewIntProfiles(db *sql.DB) *IntProfiles {
 }
 
 func (ip *IntProfiles) HandleBasicList(w http.ResponseWriter, r *http.Request) {
-	EnableCors(w)
 	SetJsonContentType(w)
 
 	intProfilesList, intProfilesErr := ip.model.BasicList()
