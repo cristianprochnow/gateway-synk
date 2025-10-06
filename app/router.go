@@ -23,7 +23,7 @@ func Router(service *Service) {
 
 	util.Log("app running on port 8080 to " + os.Getenv("PORT"))
 
-	err := http.ListenAndServe(":8080", nil)
+	err := http.ListenAndServe(":8080", controller.Cors(http.DefaultServeMux))
 	if err != nil {
 		util.Log("app failed on running on port 8080: " + err.Error())
 	}

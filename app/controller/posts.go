@@ -69,7 +69,6 @@ func NewPosts(db *sql.DB) *Posts {
 }
 
 func (p *Posts) HandleList(w http.ResponseWriter, r *http.Request) {
-	EnableCors(w)
 	SetJsonContentType(w)
 
 	postList, postErr := p.model.List()
@@ -94,7 +93,6 @@ func (p *Posts) HandleList(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *Posts) HandleCreate(w http.ResponseWriter, r *http.Request) {
-	EnableCors(w)
 	SetJsonContentType(w)
 
 	response := HandlePostCreateResponse{
@@ -189,7 +187,6 @@ func (p *Posts) HandleCreate(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *Posts) HandleUpdate(w http.ResponseWriter, r *http.Request) {
-	EnableCors(w)
 	SetJsonContentType(w)
 
 	response := HandlePostUpdateResponse{
@@ -297,7 +294,6 @@ func (p *Posts) HandleUpdate(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *Posts) HandleDelete(w http.ResponseWriter, r *http.Request) {
-	EnableCors(w)
 	SetJsonContentType(w)
 
 	response := HandlePostUpdateResponse{
