@@ -19,6 +19,9 @@ type PostsList struct {
 	IntProfileName string            `json:"int_profile_name"`
 	CreatedAt      string            `json:"created_at"`
 	Status         PublicationStatus `json:"status"`
+	PostContent    string            `json:"post_content"`
+	TemplateId     int               `json:"template_id"`
+	IntProfileId   int               `json:"int_profile_id"`
 }
 
 type PostAddData struct {
@@ -48,26 +51,37 @@ func NewPosts(db *sql.DB) *Posts {
 	return &posts
 }
 
-func (p *Posts) List(id string) ([]PostsList, error) {
+func (p *Posts) List(id string, includeContent bool) ([]PostsList, error) {
 	var posts []PostsList
 
 	whereList := []string{}
 	whereValues := []any{}
+	columnsList := []string{}
 
 	if id != "" {
 		whereList = append(whereList, "post_id = ?")
 		whereValues = append(whereValues, id)
 	}
+	if includeContent {
+		columnsList = append(columnsList, "post.post_content")
+	} else {
+		columnsList = append(columnsList, "'' post_content")
+	}
 
 	where := ""
+	columns := ""
 
 	if len(whereList) > 0 {
 		where = " AND " + strings.Join(whereList, " AND ")
 	}
+	if len(columnsList) > 0 {
+		columns = ", " + strings.Join(columnsList, ", ")
+	}
 
 	rows, rowsErr := p.db.Query(
-		`SELECT post.post_id, post.post_name, template.template_name,
-                int_profile.int_profile_name, post.created_at, "" status
+		`SELECT post.post_id, post.post_name, post.template_id, template.template_name,
+                post.int_profile_id, int_profile.int_profile_name, post.created_at,
+                "" status `+columns+`
         FROM post
         LEFT JOIN template ON template.template_id = post.template_id
         LEFT JOIN integration_profile int_profile ON int_profile.int_profile_id = post.int_profile_id
@@ -95,10 +109,13 @@ func (p *Posts) List(id string) ([]PostsList, error) {
 		exception := rows.Scan(
 			&post.PostId,
 			&post.PostName,
+			&post.TemplateId,
 			&post.TemplateName,
+			&post.IntProfileId,
 			&post.IntProfileName,
 			&post.CreatedAt,
 			&post.Status,
+			&post.PostContent,
 		)
 
 		post.CreatedAt = util.ToTimeBR(post.CreatedAt)
