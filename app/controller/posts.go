@@ -72,8 +72,9 @@ func (p *Posts) HandleList(w http.ResponseWriter, r *http.Request) {
 	SetJsonContentType(w)
 
 	postId := r.URL.Query().Get("post_id")
+	includeContent := r.URL.Query().Get("include_content")
 
-	postList, postErr := p.model.List(postId)
+	postList, postErr := p.model.List(postId, includeContent == "1")
 
 	response := HandleListResponse{
 		Resource: ResponseHeader{
