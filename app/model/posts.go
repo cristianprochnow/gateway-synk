@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"strings"
 	"synk/gateway/app/util"
 )
 
@@ -47,8 +48,22 @@ func NewPosts(db *sql.DB) *Posts {
 	return &posts
 }
 
-func (p *Posts) List() ([]PostsList, error) {
+func (p *Posts) List(id string) ([]PostsList, error) {
 	var posts []PostsList
+
+	whereList := []string{}
+	whereValues := []any{}
+
+	if id != "" {
+		whereList = append(whereList, "post_id = ?")
+		whereValues = append(whereValues, id)
+	}
+
+	where := ""
+
+	if len(whereList) > 0 {
+		where = " AND " + strings.Join(whereList, " AND ")
+	}
 
 	rows, rowsErr := p.db.Query(
 		`SELECT post.post_id, post.post_name, template.template_name,
@@ -56,8 +71,8 @@ func (p *Posts) List() ([]PostsList, error) {
         FROM post
         LEFT JOIN template ON template.template_id = post.template_id
         LEFT JOIN integration_profile int_profile ON int_profile.int_profile_id = post.int_profile_id
-        WHERE post.deleted_at IS NULL
-        ORDER BY post.created_at DESC`,
+        WHERE post.deleted_at IS NULL `+where+`
+        ORDER BY post.created_at DESC`, whereValues...,
 	)
 
 	if rowsErr != nil {
