@@ -71,7 +71,9 @@ func NewPosts(db *sql.DB) *Posts {
 func (p *Posts) HandleList(w http.ResponseWriter, r *http.Request) {
 	SetJsonContentType(w)
 
-	postList, postErr := p.model.List()
+	postId := r.URL.Query().Get("post_id")
+
+	postList, postErr := p.model.List(postId)
 
 	response := HandleListResponse{
 		Resource: ResponseHeader{
