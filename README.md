@@ -42,6 +42,15 @@ The easy way to run tests is just run `docker compose up -d` command to start pr
 
 > `GET` /post
 
+### GET Params
+
+```
+post_id=1&include_content=1
+```
+
+* `post_id`: ID do Post desejado, para realizar uma consulta direta
+* `include_content = '1'`: para trazer o valor do campo `post.post_content` na listagem.
+
 ### Response
 
 ```json
@@ -53,19 +62,25 @@ The easy way to run tests is just run `docker compose up -d` command to start pr
     "posts": [
         {
             "post_id": 1,
-            "post_name": "SQL Webinar Announcement",
+            "post_name": "Post name atualizado",
             "template_name": "Marketing Announcement",
             "int_profile_name": "Alice Marketing Profiles",
-            "created_at": "2025-09-25 21:20:37",
-            "status": "pending"
+            "created_at": "25/09/2025 21:20:37",
+            "status": "pending",
+            "post_content": "",
+            "template_id": 1,
+            "int_profile_id": 1
         },
         {
             "post_id": 2,
             "post_name": "Version 2.5 Release",
             "template_name": "Tech Update Post",
             "int_profile_name": "Bob Tech Profiles",
-            "created_at": "2025-09-25 21:20:37",
-            "status": "failed"
+            "created_at": "25/09/2025 21:20:37",
+            "status": "failed",
+            "post_content": "",
+            "template_id": 2,
+            "int_profile_id": 2
         }
     ]
 }
