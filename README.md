@@ -196,6 +196,39 @@ post_id=1&include_content=1
 }
 ```
 
+## Get list of Templates
+
+> `GET` /templates
+
+### GET Params
+
+```
+template_id=1&include_content=1
+```
+
+* `template_id`: ID do Template desejado, para realizar uma consulta direta
+* `include_content = '1'`: para trazer o valor do campo `template.template_content` na listagem.
+
+### Response
+
+```json
+{
+    "resource": {
+        "ok": true,
+        "error": ""
+    },
+    "templates": [
+        {
+            "template_id": 1,
+            "template_name": "Marketing Announcement",
+            "template_content": "Join our webinar next week on {topic}! #Webinar #{tag}",
+            "template_url_import": "",
+            "created_at": "25/09/2025 21:19:06"
+        }
+    ]
+}
+```
+
 ## Get list of Integration Profiles for dropdowns
 
 > `GET` /int_profiles/basic
