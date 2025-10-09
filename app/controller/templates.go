@@ -12,6 +12,11 @@ type Templates struct {
 	model *model.Templates
 }
 
+type HandleTemplateListResponse struct {
+	Resource ResponseHeader        `json:"resource"`
+	Data     []model.TemplatesList `json:"templates"`
+}
+
 type HandleTemplateBasicListResponse struct {
 	Resource ResponseHeader             `json:"resource"`
 	Data     []model.TemplatesBasicList `json:"templates"`
@@ -53,4 +58,31 @@ func (t *Templates) HandleBasicList(w http.ResponseWriter, r *http.Request) {
 	if writeErr != nil {
 		util.LogRoute("/templates/basic", "error on response log")
 	}
+}
+
+func (t *Templates) HandleList(w http.ResponseWriter, r *http.Request) {
+	SetJsonContentType(w)
+
+	templateId := r.URL.Query().Get("template_id")
+	includeContent := r.URL.Query().Get("include_content")
+
+	templateList, templateErr := t.model.List(templateId, includeContent == "1")
+
+	response := HandleTemplateListResponse{
+		Resource: ResponseHeader{
+			Ok: true,
+		},
+		Data: templateList,
+	}
+
+	if templateErr != nil {
+		response.Resource.Ok = false
+		response.Resource.Error = templateErr.Error()
+
+		WriteErrorResponse(w, response, "/templates", "error on template fetch", http.StatusInternalServerError)
+
+		return
+	}
+
+	WriteSuccessResponse(w, response)
 }
