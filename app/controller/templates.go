@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
 	"synk/gateway/app/model"
 	"synk/gateway/app/util"
@@ -34,6 +35,22 @@ type CreateTemplateCreateDataResponse struct {
 }
 
 type HandleTemplateCreateRequest struct {
+	TemplateName      string `json:"template_name"`
+	TemplateContent   string `json:"template_content"`
+	TemplateUrlImport string `json:"template_url_import"`
+}
+
+type HandleTemplateUpdateResponse struct {
+	Resource ResponseHeader             `json:"resource"`
+	Data     UpdateTemplateDataResponse `json:"template"`
+}
+
+type UpdateTemplateDataResponse struct {
+	RowsAffected int `json:"rows_affected"`
+}
+
+type HandleTemplateUpdateRequest struct {
+	TemplateId        int    `json:"template_id"`
 	TemplateName      string `json:"template_name"`
 	TemplateContent   string `json:"template_content"`
 	TemplateUrlImport string `json:"template_url_import"`
@@ -172,6 +189,90 @@ func (t *Templates) HandleCreate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response.Data.TemplateId = creationId
+
+	WriteSuccessResponse(w, response)
+}
+
+func (t *Templates) HandleUpdate(w http.ResponseWriter, r *http.Request) {
+	SetJsonContentType(w)
+
+	response := HandleTemplateUpdateResponse{
+		Resource: ResponseHeader{
+			Ok: true,
+		},
+		Data: UpdateTemplateDataResponse{},
+	}
+
+	bodyContent, bodyErr := io.ReadAll(r.Body)
+
+	if bodyErr != nil {
+		response.Resource.Ok = false
+		response.Resource.Error = "error on read update body"
+
+		WriteErrorResponse(w, response, "/templates", response.Resource.Error, http.StatusBadRequest)
+
+		return
+	}
+
+	var template HandleTemplateUpdateRequest
+
+	jsonErr := json.Unmarshal(bodyContent, &template)
+
+	if jsonErr != nil {
+		response.Resource.Ok = false
+		response.Resource.Error = "some fields can be in invalid format"
+
+		WriteErrorResponse(w, response, "/templates", response.Resource.Error, http.StatusBadRequest)
+
+		return
+	}
+
+	template.TemplateName = strings.TrimSpace(template.TemplateName)
+	template.TemplateContent = strings.TrimSpace(template.TemplateContent)
+	template.TemplateUrlImport = strings.TrimSpace(template.TemplateUrlImport)
+
+	hasAllData := template.TemplateId != 0 &&
+		template.TemplateName != "" &&
+		template.TemplateContent != "" &&
+		template.TemplateUrlImport != ""
+
+	if !hasAllData {
+		response.Resource.Ok = false
+		response.Resource.Error = "fields template_id, template_name, template_content, template_url_import are required"
+
+		WriteErrorResponse(w, response, "/templates", response.Resource.Error, http.StatusBadRequest)
+
+		return
+	}
+
+	templateById, _ := t.model.ById(template.TemplateId)
+
+	if templateById.TemplateId == 0 {
+		response.Resource.Ok = false
+		response.Resource.Error = "template with id " + strconv.Itoa(template.TemplateId) + " not found"
+
+		WriteErrorResponse(w, response, "/templates", response.Resource.Error, http.StatusBadRequest)
+
+		return
+	}
+
+	rowsAffected, updateErr := t.model.Update(model.TemplateUpdateData{
+		TemplateId:        templateById.TemplateId,
+		TemplateName:      template.TemplateName,
+		TemplateContent:   template.TemplateContent,
+		TemplateUrlImport: template.TemplateUrlImport,
+	})
+
+	if updateErr != nil {
+		response.Resource.Ok = false
+		response.Resource.Error = updateErr.Error()
+
+		WriteErrorResponse(w, response, "/templates", response.Resource.Error, http.StatusBadRequest)
+
+		return
+	}
+
+	response.Data.RowsAffected = rowsAffected
 
 	WriteSuccessResponse(w, response)
 }
