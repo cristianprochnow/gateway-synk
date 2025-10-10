@@ -196,6 +196,122 @@ post_id=1&include_content=1
 }
 ```
 
+## Get list of Templates
+
+> `GET` /templates
+
+### GET Params
+
+```
+template_id=1&include_content=1
+```
+
+* `template_id`: ID do Template desejado, para realizar uma consulta direta
+* `include_content = '1'`: para trazer o valor do campo `template.template_content` na listagem.
+
+### Response
+
+```json
+{
+    "resource": {
+        "ok": true,
+        "error": ""
+    },
+    "templates": [
+        {
+            "template_id": 1,
+            "template_name": "Marketing Announcement",
+            "template_content": "Join our webinar next week on {topic}! #Webinar #{tag}",
+            "template_url_import": "",
+            "created_at": "25/09/2025 21:19:06"
+        }
+    ]
+}
+```
+
+## Create a Template
+
+> `POST` /templates
+
+### Request
+
+```json
+{
+    "template_name": "template brabo demais",
+    "template_content": "template brabo demais",
+    "template_url_import": "template brabo demais"
+}
+```
+
+### Response
+
+```json
+{
+    "resource": {
+        "ok": true,
+        "error": ""
+    },
+    "template": {
+        "template_id": 3
+    }
+}
+```
+
+## Update a Template
+
+> `PUT` /templates
+
+### Request
+
+```json
+{
+    "template_id": 1,
+    "template_name": "template brabo demais toppp",
+    "template_content": "template brabo demais toppp",
+    "template_url_import": "template brabo demais toppp"
+}
+```
+
+### Response
+
+```json
+{
+    "resource": {
+        "ok": true,
+        "error": ""
+    },
+    "template": {
+        "rows_affected": 1
+    }
+}
+```
+
+## Delete a Template
+
+> `DELETE` /templates
+
+### Request
+
+```json
+{
+    "template_id": 3
+}
+```
+
+### Response
+
+```json
+{
+    "resource": {
+        "ok": true,
+        "error": ""
+    },
+    "template": {
+        "rows_affected": 1
+    }
+}
+```
+
 ## Get list of Integration Profiles for dropdowns
 
 > `GET` /int_profiles/basic
