@@ -22,6 +22,7 @@ func Router(service *Service) {
 	http.HandleFunc("GET /templates", templateController.HandleList)
 	http.HandleFunc("POST /templates", templateController.HandleCreate)
 	http.HandleFunc("PUT /templates", templateController.HandleUpdate)
+	http.HandleFunc("DELETE /templates", templateController.HandleDelete)
 	http.HandleFunc("GET /int_profiles/basic", intProfileController.HandleBasicList)
 
 	util.Log("app running on port 8080 to " + os.Getenv("PORT"))
