@@ -37,6 +37,18 @@ type TemplateAddData struct {
 	CreatedAt         string `json:"created_at"`
 }
 
+type TemplateByIdData struct {
+	TemplateId int `json:"template_id"`
+}
+
+type TemplateUpdateData struct {
+	TemplateId        int    `json:"template_id"`
+	TemplateName      string `json:"template_name"`
+	TemplateContent   string `json:"template_content"`
+	TemplateUrlImport string `json:"template_url_import"`
+	UpdatedAt         string `json:"updated_at"`
+}
+
 func NewTemplates(db *sql.DB) *Templates {
 	templates := Templates{db: db}
 
@@ -211,4 +223,34 @@ func (t *Templates) Add(template TemplateAddData) (int, error) {
 	templateId = int(id)
 
 	return templateId, nil
+}
+
+func (t *Templates) Update(template TemplateUpdateData) (int, error) {
+	var rowsAffected int64
+
+	updateRes, updateErr := t.db.ExecContext(
+		context.Background(),
+		`UPDATE template
+        SET template_name = ?,
+            template_content = ?,
+            template_url_import = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE template_id = ? AND
+              deleted_at IS NULL`,
+		template.TemplateName, template.TemplateContent, template.TemplateUrlImport, template.TemplateId,
+	)
+
+	if updateErr != nil {
+		return int(rowsAffected), fmt.Errorf("models.templates.update: %s", updateErr.Error())
+	}
+
+	rowsAffectedVal, exception := updateRes.RowsAffected()
+
+	if exception != nil {
+		return int(rowsAffected), fmt.Errorf("models.templates.update: %s", exception.Error())
+	}
+
+	rowsAffected = rowsAffectedVal
+
+	return int(rowsAffected), nil
 }
