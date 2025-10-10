@@ -229,6 +229,34 @@ template_id=1&include_content=1
 }
 ```
 
+## Create a Template
+
+> `POST` /templates
+
+### Request
+
+```json
+{
+    "template_name": "template brabo demais",
+    "template_content": "template brabo demais",
+    "template_url_import": "template brabo demais"
+}
+```
+
+### Response
+
+```json
+{
+    "resource": {
+        "ok": true,
+        "error": ""
+    },
+    "template": {
+        "template_id": 3
+    }
+}
+```
+
 ## Get list of Integration Profiles for dropdowns
 
 > `GET` /int_profiles/basic
