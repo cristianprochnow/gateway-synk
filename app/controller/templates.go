@@ -56,6 +56,10 @@ type HandleTemplateUpdateRequest struct {
 	TemplateUrlImport string `json:"template_url_import"`
 }
 
+type HandleTemplateDeleteRequest struct {
+	TemplateId int `json:"template_id"`
+}
+
 func NewTemplates(db *sql.DB) *Templates {
 	templates := Templates{model: model.NewTemplates(db)}
 
@@ -262,6 +266,78 @@ func (t *Templates) HandleUpdate(w http.ResponseWriter, r *http.Request) {
 		TemplateContent:   template.TemplateContent,
 		TemplateUrlImport: template.TemplateUrlImport,
 	})
+
+	if updateErr != nil {
+		response.Resource.Ok = false
+		response.Resource.Error = updateErr.Error()
+
+		WriteErrorResponse(w, response, "/templates", response.Resource.Error, http.StatusBadRequest)
+
+		return
+	}
+
+	response.Data.RowsAffected = rowsAffected
+
+	WriteSuccessResponse(w, response)
+}
+
+func (t *Templates) HandleDelete(w http.ResponseWriter, r *http.Request) {
+	SetJsonContentType(w)
+
+	response := HandleTemplateUpdateResponse{
+		Resource: ResponseHeader{
+			Ok: true,
+		},
+		Data: UpdateTemplateDataResponse{},
+	}
+
+	bodyContent, bodyErr := io.ReadAll(r.Body)
+
+	if bodyErr != nil {
+		response.Resource.Ok = false
+		response.Resource.Error = "error on read delete body"
+
+		WriteErrorResponse(w, response, "/templates", response.Resource.Error, http.StatusBadRequest)
+
+		return
+	}
+
+	var template HandleTemplateDeleteRequest
+
+	jsonErr := json.Unmarshal(bodyContent, &template)
+
+	if jsonErr != nil {
+		response.Resource.Ok = false
+		response.Resource.Error = "some fields can be in invalid format"
+
+		WriteErrorResponse(w, response, "/templates", response.Resource.Error, http.StatusBadRequest)
+
+		return
+	}
+
+	hasAllData := template.TemplateId != 0
+
+	if !hasAllData {
+		response.Resource.Ok = false
+		response.Resource.Error = "fields template_id is required"
+
+		WriteErrorResponse(w, response, "/templates", response.Resource.Error, http.StatusBadRequest)
+
+		return
+	}
+
+	templateById, _ := t.model.ById(template.TemplateId)
+
+	if templateById.TemplateId == 0 {
+		response.Resource.Ok = false
+		response.Resource.Error = "template with id " + strconv.Itoa(template.TemplateId) + " not found"
+
+		WriteErrorResponse(w, response, "/templates", response.Resource.Error, http.StatusBadRequest)
+
+		return
+	}
+
+	rowsAffected, updateErr := t.model.Delete(template.TemplateId)
 
 	if updateErr != nil {
 		response.Resource.Ok = false
