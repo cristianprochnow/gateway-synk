@@ -257,6 +257,35 @@ template_id=1&include_content=1
 }
 ```
 
+## Update a Template
+
+> `PUT` /templates
+
+### Request
+
+```json
+{
+    "template_id": 1,
+    "template_name": "template brabo demais toppp",
+    "template_content": "template brabo demais toppp",
+    "template_url_import": "template brabo demais toppp"
+}
+```
+
+### Response
+
+```json
+{
+    "resource": {
+        "ok": true,
+        "error": ""
+    },
+    "template": {
+        "rows_affected": 1
+    }
+}
+```
+
 ## Get list of Integration Profiles for dropdowns
 
 > `GET` /int_profiles/basic
