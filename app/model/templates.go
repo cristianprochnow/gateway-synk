@@ -254,3 +254,28 @@ func (t *Templates) Update(template TemplateUpdateData) (int, error) {
 
 	return int(rowsAffected), nil
 }
+
+func (t *Templates) Delete(templateId int) (int, error) {
+	var rowsAffected int64
+
+	insertRes, insertErr := t.db.ExecContext(
+		context.Background(),
+		`UPDATE template
+        SET deleted_at = CURRENT_TIMESTAMP
+        WHERE template_id = ?`, templateId,
+	)
+
+	if insertErr != nil {
+		return int(rowsAffected), fmt.Errorf("models.templates.delete: %s", insertErr.Error())
+	}
+
+	rowsAffectedVal, exception := insertRes.RowsAffected()
+
+	if exception != nil {
+		return int(rowsAffected), fmt.Errorf("models.templates.delete: %s", exception.Error())
+	}
+
+	rowsAffected = rowsAffectedVal
+
+	return int(rowsAffected), nil
+}
