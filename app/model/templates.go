@@ -1,6 +1,7 @@
 package model
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"strings"
@@ -25,6 +26,14 @@ type TemplatesList struct {
 	TemplateName      string `json:"template_name"`
 	TemplateContent   string `json:"template_content"`
 	TemplateUrlImport string `json:"template_url_import"`
+	CreatedAt         string `json:"created_at"`
+}
+
+type TemplateAddData struct {
+	TemplateName      string `json:"template_name"`
+	TemplateContent   string `json:"template_content"`
+	TemplateUrlImport string `json:"template_url_import"`
+	UserId            int    `json:"user_id"`
 	CreatedAt         string `json:"created_at"`
 }
 
@@ -177,4 +186,29 @@ func (t *Templates) List(id string, includeContent bool) ([]TemplatesList, error
 	}
 
 	return templates, nil
+}
+
+func (t *Templates) Add(template TemplateAddData) (int, error) {
+	var templateId int
+
+	insertRes, insertErr := t.db.ExecContext(
+		context.Background(),
+		`INSERT INTO synk.template (template_name, template_content, template_url_import, user_id)
+        VALUES (?, ?, ?, ?)`,
+		template.TemplateName, template.TemplateContent, template.TemplateUrlImport, template.UserId,
+	)
+
+	if insertErr != nil {
+		return templateId, fmt.Errorf("models.templates.add: %s", insertErr.Error())
+	}
+
+	id, exception := insertRes.LastInsertId()
+
+	if exception != nil {
+		return templateId, fmt.Errorf("models.templates.add: %s", exception.Error())
+	}
+
+	templateId = int(id)
+
+	return templateId, nil
 }
