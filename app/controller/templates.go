@@ -3,7 +3,9 @@ package controller
 import (
 	"database/sql"
 	"encoding/json"
+	"io"
 	"net/http"
+	"strings"
 	"synk/gateway/app/model"
 	"synk/gateway/app/util"
 )
@@ -20,6 +22,21 @@ type HandleTemplateListResponse struct {
 type HandleTemplateBasicListResponse struct {
 	Resource ResponseHeader             `json:"resource"`
 	Data     []model.TemplatesBasicList `json:"templates"`
+}
+
+type HandleTemplateCreateResponse struct {
+	Resource ResponseHeader                   `json:"resource"`
+	Data     CreateTemplateCreateDataResponse `json:"template"`
+}
+
+type CreateTemplateCreateDataResponse struct {
+	TemplateId int `json:"template_id"`
+}
+
+type HandleTemplateCreateRequest struct {
+	TemplateName      string `json:"template_name"`
+	TemplateContent   string `json:"template_content"`
+	TemplateUrlImport string `json:"template_url_import"`
 }
 
 func NewTemplates(db *sql.DB) *Templates {
@@ -83,6 +100,78 @@ func (t *Templates) HandleList(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
+
+	WriteSuccessResponse(w, response)
+}
+
+func (t *Templates) HandleCreate(w http.ResponseWriter, r *http.Request) {
+	SetJsonContentType(w)
+
+	response := HandleTemplateCreateResponse{
+		Resource: ResponseHeader{
+			Ok: true,
+		},
+		Data: CreateTemplateCreateDataResponse{},
+	}
+
+	bodyContent, bodyErr := io.ReadAll(r.Body)
+
+	if bodyErr != nil {
+		response.Resource.Ok = false
+		response.Resource.Error = "error on read creation body"
+
+		WriteErrorResponse(w, response, "/templates", response.Resource.Error, http.StatusBadRequest)
+
+		return
+	}
+
+	var template HandleTemplateCreateRequest
+
+	jsonErr := json.Unmarshal(bodyContent, &template)
+
+	if jsonErr != nil {
+		response.Resource.Ok = false
+		response.Resource.Error = "some fields can be in invalid format"
+
+		WriteErrorResponse(w, response, "/templates", response.Resource.Error, http.StatusBadRequest)
+
+		return
+	}
+
+	template.TemplateName = strings.TrimSpace(template.TemplateName)
+	template.TemplateContent = strings.TrimSpace(template.TemplateContent)
+	template.TemplateUrlImport = strings.TrimSpace(template.TemplateUrlImport)
+
+	hasAllData := template.TemplateName != "" &&
+		template.TemplateContent != "" &&
+		template.TemplateUrlImport != ""
+
+	if !hasAllData {
+		response.Resource.Ok = false
+		response.Resource.Error = "fields template_name, template_content, template_url_import are required"
+
+		WriteErrorResponse(w, response, "/templates", response.Resource.Error, http.StatusBadRequest)
+
+		return
+	}
+
+	creationId, creationErr := t.model.Add(model.TemplateAddData{
+		TemplateName:      template.TemplateName,
+		TemplateContent:   template.TemplateContent,
+		TemplateUrlImport: template.TemplateUrlImport,
+		UserId:            1,
+	})
+
+	if creationErr != nil {
+		response.Resource.Ok = false
+		response.Resource.Error = creationErr.Error()
+
+		WriteErrorResponse(w, response, "/templates", response.Resource.Error, http.StatusBadRequest)
+
+		return
+	}
+
+	response.Data.TemplateId = creationId
 
 	WriteSuccessResponse(w, response)
 }
