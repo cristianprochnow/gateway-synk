@@ -286,6 +286,32 @@ template_id=1&include_content=1
 }
 ```
 
+## Delete a Template
+
+> `DELETE` /templates
+
+### Request
+
+```json
+{
+    "template_id": 3
+}
+```
+
+### Response
+
+```json
+{
+    "resource": {
+        "ok": true,
+        "error": ""
+    },
+    "template": {
+        "rows_affected": 1
+    }
+}
+```
+
 ## Get list of Integration Profiles for dropdowns
 
 > `GET` /int_profiles/basic
