@@ -3,13 +3,17 @@ package controller
 import (
 	"database/sql"
 	"encoding/json"
+	"io"
 	"net/http"
+	"strconv"
+	"strings"
 	"synk/gateway/app/model"
 	"synk/gateway/app/util"
 )
 
 type IntProfiles struct {
-	model *model.IntProfiles
+	model      *model.IntProfiles
+	ColorModel *model.Colors
 }
 
 type HandleIntProfilesBasicListResponse struct {
@@ -17,8 +21,49 @@ type HandleIntProfilesBasicListResponse struct {
 	Data     []model.IntProfilesBasicList `json:"int_profiles"`
 }
 
+type HandleIntProfileListResponse struct {
+	Resource ResponseHeader         `json:"resource"`
+	Data     []model.IntProfileList `json:"int_profiles"`
+}
+
+type HandleIntProfileCreateResponse struct {
+	Resource ResponseHeader                     `json:"resource"`
+	Data     CreateIntProfileCreateDataResponse `json:"int_profile"`
+}
+
+type CreateIntProfileCreateDataResponse struct {
+	IntProfileId int `json:"int_profile_id"`
+}
+
+type HandleIntProfileCreateRequest struct {
+	IntProfileName string `json:"int_profile_name"`
+	ColorId        int    `json:"color_id"`
+}
+
+type HandleIntProfileUpdateResponse struct {
+	Resource ResponseHeader               `json:"resource"`
+	Data     UpdateIntProfileDataResponse `json:"int_profile"`
+}
+
+type UpdateIntProfileDataResponse struct {
+	RowsAffected int `json:"rows_affected"`
+}
+
+type HandleIntProfileUpdateRequest struct {
+	IntProfileId   int    `json:"int_profile_id"`
+	IntProfileName string `json:"int_profile_name"`
+	ColorId        int    `json:"color_id"`
+}
+
+type HandleIntProfileDeleteRequest struct {
+	IntProfileId int `json:"int_profile_id"`
+}
+
 func NewIntProfiles(db *sql.DB) *IntProfiles {
-	intProfiles := IntProfiles{model: model.NewIntProfiles(db)}
+	intProfiles := IntProfiles{
+		model:      model.NewIntProfiles(db),
+		ColorModel: model.NewColors(db),
+	}
 
 	return &intProfiles
 }
@@ -53,4 +98,271 @@ func (ip *IntProfiles) HandleBasicList(w http.ResponseWriter, r *http.Request) {
 	if writeErr != nil {
 		util.LogRoute("/int_profiles/basic", "error on response log")
 	}
+}
+
+func (ip *IntProfiles) HandleList(w http.ResponseWriter, r *http.Request) {
+	SetJsonContentType(w)
+
+	intProfileId := r.URL.Query().Get("int_profile_id")
+
+	templateList, templateErr := ip.model.List(intProfileId)
+
+	response := HandleIntProfileListResponse{
+		Resource: ResponseHeader{
+			Ok: true,
+		},
+		Data: templateList,
+	}
+
+	if templateErr != nil {
+		response.Resource.Ok = false
+		response.Resource.Error = templateErr.Error()
+
+		WriteErrorResponse(w, response, "/int_profiles", "error on integration profiles fetch", http.StatusInternalServerError)
+
+		return
+	}
+
+	WriteSuccessResponse(w, response)
+}
+
+func (ip *IntProfiles) HandleCreate(w http.ResponseWriter, r *http.Request) {
+	SetJsonContentType(w)
+
+	response := HandleIntProfileCreateResponse{
+		Resource: ResponseHeader{
+			Ok: true,
+		},
+		Data: CreateIntProfileCreateDataResponse{},
+	}
+
+	bodyContent, bodyErr := io.ReadAll(r.Body)
+
+	if bodyErr != nil {
+		response.Resource.Ok = false
+		response.Resource.Error = "error on read creation body"
+
+		WriteErrorResponse(w, response, "/int_profiles", response.Resource.Error, http.StatusBadRequest)
+
+		return
+	}
+
+	var intProfile HandleIntProfileCreateRequest
+
+	jsonErr := json.Unmarshal(bodyContent, &intProfile)
+
+	if jsonErr != nil {
+		response.Resource.Ok = false
+		response.Resource.Error = "some fields can be in invalid format"
+
+		WriteErrorResponse(w, response, "/int_profiles", response.Resource.Error, http.StatusBadRequest)
+
+		return
+	}
+
+	intProfile.IntProfileName = strings.TrimSpace(intProfile.IntProfileName)
+
+	hasAllData := intProfile.IntProfileName != "" &&
+		intProfile.ColorId != 0
+
+	if !hasAllData {
+		response.Resource.Ok = false
+		response.Resource.Error = "fields int_profile_name, color_id are required"
+
+		WriteErrorResponse(w, response, "/int_profiles", response.Resource.Error, http.StatusBadRequest)
+
+		return
+	}
+
+	colorsById, _ := ip.ColorModel.List(intProfile.ColorId)
+
+	if len(colorsById) == 0 {
+		response.Resource.Ok = false
+		response.Resource.Error = "color with id " + strconv.Itoa(intProfile.ColorId) + " not found"
+
+		WriteErrorResponse(w, response, "/int_profiles", response.Resource.Error, http.StatusBadRequest)
+
+		return
+	}
+
+	creationId, creationErr := ip.model.Add(model.IntProfileAddData{
+		IntProfileName: intProfile.IntProfileName,
+		ColorId:        intProfile.ColorId,
+	})
+
+	if creationErr != nil {
+		response.Resource.Ok = false
+		response.Resource.Error = creationErr.Error()
+
+		WriteErrorResponse(w, response, "/int_profiles", response.Resource.Error, http.StatusBadRequest)
+
+		return
+	}
+
+	response.Data.IntProfileId = creationId
+
+	WriteSuccessResponse(w, response)
+}
+
+func (ip *IntProfiles) HandleUpdate(w http.ResponseWriter, r *http.Request) {
+	SetJsonContentType(w)
+
+	response := HandleIntProfileUpdateResponse{
+		Resource: ResponseHeader{
+			Ok: true,
+		},
+		Data: UpdateIntProfileDataResponse{},
+	}
+
+	bodyContent, bodyErr := io.ReadAll(r.Body)
+
+	if bodyErr != nil {
+		response.Resource.Ok = false
+		response.Resource.Error = "error on read update body"
+
+		WriteErrorResponse(w, response, "/int_profiles", response.Resource.Error, http.StatusBadRequest)
+
+		return
+	}
+
+	var intProfile HandleIntProfileUpdateRequest
+
+	jsonErr := json.Unmarshal(bodyContent, &intProfile)
+
+	if jsonErr != nil {
+		response.Resource.Ok = false
+		response.Resource.Error = "some fields can be in invalid format"
+
+		WriteErrorResponse(w, response, "/int_profiles", response.Resource.Error, http.StatusBadRequest)
+
+		return
+	}
+
+	intProfile.IntProfileName = strings.TrimSpace(intProfile.IntProfileName)
+
+	hasAllData := intProfile.IntProfileId != 0 &&
+		intProfile.IntProfileName != "" &&
+		intProfile.ColorId != 0
+
+	if !hasAllData {
+		response.Resource.Ok = false
+		response.Resource.Error = "fields int_profile_id, int_profile_name, color_id are required"
+
+		WriteErrorResponse(w, response, "/int_profiles", response.Resource.Error, http.StatusBadRequest)
+
+		return
+	}
+
+	colorsById, _ := ip.ColorModel.List(intProfile.ColorId)
+
+	if len(colorsById) == 0 {
+		response.Resource.Ok = false
+		response.Resource.Error = "color with id " + strconv.Itoa(intProfile.ColorId) + " not found"
+
+		WriteErrorResponse(w, response, "/int_profiles", response.Resource.Error, http.StatusBadRequest)
+
+		return
+	}
+
+	intProfileById, _ := ip.model.ById(intProfile.IntProfileId)
+
+	if intProfileById.IntProfileId == 0 {
+		response.Resource.Ok = false
+		response.Resource.Error = "integration profile with id " + strconv.Itoa(intProfile.IntProfileId) + " not found"
+
+		WriteErrorResponse(w, response, "/int_profiles", response.Resource.Error, http.StatusBadRequest)
+
+		return
+	}
+
+	rowsAffected, updateErr := ip.model.Update(model.IntProfileUpdateData{
+		IntProfileId:   intProfile.IntProfileId,
+		IntProfileName: intProfile.IntProfileName,
+		ColorId:        intProfile.ColorId,
+	})
+
+	if updateErr != nil {
+		response.Resource.Ok = false
+		response.Resource.Error = updateErr.Error()
+
+		WriteErrorResponse(w, response, "/int_profiles", response.Resource.Error, http.StatusBadRequest)
+
+		return
+	}
+
+	response.Data.RowsAffected = rowsAffected
+
+	WriteSuccessResponse(w, response)
+}
+
+func (ip *IntProfiles) HandleDelete(w http.ResponseWriter, r *http.Request) {
+	SetJsonContentType(w)
+
+	response := HandleIntProfileUpdateResponse{
+		Resource: ResponseHeader{
+			Ok: true,
+		},
+		Data: UpdateIntProfileDataResponse{},
+	}
+
+	bodyContent, bodyErr := io.ReadAll(r.Body)
+
+	if bodyErr != nil {
+		response.Resource.Ok = false
+		response.Resource.Error = "error on read delete body"
+
+		WriteErrorResponse(w, response, "/int_profiles", response.Resource.Error, http.StatusBadRequest)
+
+		return
+	}
+
+	var intProfile HandleIntProfileDeleteRequest
+
+	jsonErr := json.Unmarshal(bodyContent, &intProfile)
+
+	if jsonErr != nil {
+		response.Resource.Ok = false
+		response.Resource.Error = "some fields can be in invalid format"
+
+		WriteErrorResponse(w, response, "/int_profiles", response.Resource.Error, http.StatusBadRequest)
+
+		return
+	}
+
+	hasAllData := intProfile.IntProfileId != 0
+
+	if !hasAllData {
+		response.Resource.Ok = false
+		response.Resource.Error = "fields int_profile_id is required"
+
+		WriteErrorResponse(w, response, "/int_profiles", response.Resource.Error, http.StatusBadRequest)
+
+		return
+	}
+
+	intProfileById, _ := ip.model.ById(intProfile.IntProfileId)
+
+	if intProfileById.IntProfileId == 0 {
+		response.Resource.Ok = false
+		response.Resource.Error = "integration profile with id " + strconv.Itoa(intProfile.IntProfileId) + " not found"
+
+		WriteErrorResponse(w, response, "/int_profiles", response.Resource.Error, http.StatusBadRequest)
+
+		return
+	}
+
+	rowsAffected, updateErr := ip.model.Delete(intProfile.IntProfileId)
+
+	if updateErr != nil {
+		response.Resource.Ok = false
+		response.Resource.Error = updateErr.Error()
+
+		WriteErrorResponse(w, response, "/int_profiles", response.Resource.Error, http.StatusBadRequest)
+
+		return
+	}
+
+	response.Data.RowsAffected = rowsAffected
+
+	WriteSuccessResponse(w, response)
 }
