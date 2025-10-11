@@ -340,3 +340,125 @@ template_id=1&include_content=1
     ]
 }
 ```
+
+## Get list of Integration Profiles
+
+> `GET` /int_profiles
+
+### GET Params
+
+```
+int_profile_id=1
+```
+
+* `int_profile_id`: ID do Integration Profile desejado, para realizar uma consulta direta
+
+### Response
+
+```json
+{
+    "resource": {
+        "ok": true,
+        "error": ""
+    },
+    "int_profiles": [
+        {
+            "int_profile_id": "1",
+            "int_profile_name": "Alice Marketing Profiles",
+            "color_id": 1,
+            "color_name": "Primary Blue",
+            "color_hex": "007BFF",
+            "created_at": "25/09/2025 21:19:06"
+        },
+        {
+            "int_profile_id": "2",
+            "int_profile_name": "Bob Tech Profiles",
+            "color_id": 2,
+            "color_name": "Success Green",
+            "color_hex": "28A745",
+            "created_at": "25/09/2025 21:19:06"
+        }
+    ]
+}
+```
+
+## Create a Template
+
+> `POST` /int_profiles
+
+### Request
+
+```json
+{
+    "int_profile_name": "Novo Perfil de Integração",
+    "color_id": 1
+}
+```
+
+### Response
+
+```json
+{
+    "resource": {
+        "ok": true,
+        "error": ""
+    },
+    "int_profile": {
+        "int_profile_id": 3
+    }
+}
+```
+
+## Update a Template
+
+> `PUT` /int_profiles
+
+### Request
+
+```json
+{
+    "int_profile_id": 3,
+    "int_profile_name": "Integração topzera",
+    "color_id": 2
+}
+```
+
+### Response
+
+```json
+{
+    "resource": {
+        "ok": true,
+        "error": ""
+    },
+    "int_profile": {
+        "rows_affected": 1
+    }
+}
+```
+
+## Delete a Template
+
+> `DELETE` /int_profiles
+
+### Request
+
+```json
+{
+    "int_profile_id": 3
+}
+```
+
+### Response
+
+```json
+{
+    "resource": {
+        "ok": true,
+        "error": ""
+    },
+    "int_profile": {
+        "rows_affected": 1
+    }
+}
+```
