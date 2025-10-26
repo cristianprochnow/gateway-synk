@@ -462,3 +462,151 @@ int_profile_id=1
     }
 }
 ```
+
+## Get list of Integration Credentials for dropdowns
+
+> `GET` /int_credentials/basic
+
+### Response
+
+```json
+{
+	"resource": {
+		"ok": true,
+		"error": ""
+	},
+	"int_credentials": [
+		{
+			"int_credential_id": 3,
+			"int_credential_name": "Alice LinkedIn Account",
+			"int_credential_type": "linkedin"
+		},
+		{
+			"int_credential_id": 1,
+			"int_credential_name": "Alice Twitter Account",
+			"int_credential_type": "twitter"
+		},
+		{
+			"int_credential_id": 2,
+			"int_credential_name": "Bob LinkedIn Account",
+			"int_credential_type": "linkedin"
+		}
+	]
+}
+```
+
+## Get list of Integration Credentials
+
+> `GET` /int_credentials
+
+### GET Params
+
+```
+int_credential_id=1&include_config=1
+```
+
+* `int_credential_id`: ID do Integration Credential desejado para realizar uma consulta direta
+* `include_config`: flag para trazer ou não o conteúdo do campo de `int_credential_config`
+
+### Response
+
+```json
+{
+	"resource": {
+		"ok": true,
+		"error": ""
+	},
+	"int_credentials": [
+		{
+			"int_credential_id": "1",
+			"int_credential_name": "Alice Twitter Account",
+			"int_credential_type": "twitter",
+			"int_credential_config": "{\"apiKey\": \"key123\", \"apiSecret\": \"secret123\", \"accessToken\": \"token123\"}",
+			"created_at": "25/09/2025 21:19:06"
+		}
+	]
+}
+```
+
+## Create a Integration Credential
+
+> `POST` /int_credentials
+
+### Request
+
+```json
+{
+	"int_credential_name": "Linkedinho",
+	"int_credential_type": "linkedin",
+	"int_credential_config": "{}"
+}
+```
+
+### Response
+
+```json
+{
+	"resource": {
+		"ok": true,
+		"error": ""
+	},
+	"int_credential": {
+		"int_credential_id": 5
+	}
+}
+```
+
+## Update a Integration Credential
+
+> `PUT` /int_credentials
+
+### Request
+
+```json
+{
+	"int_credential_id": 4,
+	"int_credential_name": "Linkedinho",
+	"int_credential_type": "twitter",
+	"int_credential_config": "{}"
+}
+```
+
+### Response
+
+```json
+{
+	"resource": {
+		"ok": true,
+		"error": ""
+	},
+	"int_credential": {
+		"rows_affected": 1
+	}
+}
+```
+
+## Delete a Integration Credential
+
+> `DELETE` /int_credentials
+
+### Request
+
+```json
+{
+	"int_credential_id": 5
+}
+```
+
+### Response
+
+```json
+{
+	"resource": {
+		"ok": true,
+		"error": ""
+	},
+	"int_credential": {
+		"rows_affected": 1
+	}
+}
+```
