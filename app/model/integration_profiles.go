@@ -188,7 +188,7 @@ func (ip *IntProfiles) List(id string) ([]IntProfileList, error) {
 	return intProfiles, nil
 }
 
-func (ip *IntProfiles) Add(intProfile IntProfileAddData) (int, error) {
+func (ip *IntProfiles) Add(intProfile IntProfileAddData, intCredentials []int) (int, error) {
 	var intProfileId int
 
 	insertRes, insertErr := ip.db.ExecContext(
@@ -209,6 +209,15 @@ func (ip *IntProfiles) Add(intProfile IntProfileAddData) (int, error) {
 	}
 
 	intProfileId = int(id)
+
+	for _, credentialId := range intCredentials {
+		ip.db.ExecContext(
+			context.Background(),
+			`INSERT INTO synk.integration_group (int_profile_id, int_credential_id)
+            VALUES (?, ?)`,
+			intProfileId, credentialId,
+		)
+	}
 
 	return intProfileId, nil
 }
