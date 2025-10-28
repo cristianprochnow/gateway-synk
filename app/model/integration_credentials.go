@@ -36,7 +36,7 @@ type IntCredentialsBasicList struct {
 }
 
 type IntCredentialList struct {
-	IntCredentialId     string `json:"int_credential_id"`
+	IntCredentialId     int    `json:"int_credential_id"`
 	IntCredentialName   string `json:"int_credential_name"`
 	IntCredentialType   string `json:"int_credential_type"`
 	IntCredentialConfig string `json:"int_credential_config"`
