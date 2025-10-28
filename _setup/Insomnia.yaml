@@ -1,0 +1,632 @@
+type: collection.insomnia.rest/5.0
+name: Synk
+meta:
+  id: wrk_17322b952bb24e84b4c93de25186bd21
+  created: 1758844512926
+  modified: 1758844512926
+  description: ""
+collection:
+  - url: "{{base_url}}/about"
+    name: about
+    meta:
+      id: req_72092cd762aa4636926a511d1b1e3c6a
+      created: 1758844566254
+      modified: 1758844678789
+      isPrivate: false
+      description: ""
+      sortKey: -1758844566254
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/11.6.1
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - name: posts
+    meta:
+      id: fld_b7de9c95160645fcae32d24f28cc6296
+      created: 1758844562640
+      modified: 1758844562640
+      sortKey: -1758844562640
+      description: ""
+    children:
+      - url: "{{base_url}}/post"
+        name: list
+        meta:
+          id: req_0498d745f3c6488ca3adede4788d3e6b
+          created: 1758844687004
+          modified: 1759809384933
+          isPrivate: false
+          description: ""
+          sortKey: -1758844687004
+        method: GET
+        parameters:
+          - id: pair_f8921a967cae4207b4af1a4ccee19083
+            name: post_id
+            value: "1"
+            description: ""
+            disabled: true
+          - id: pair_abfc3ad035ff41e48255c6b9a1978f1d
+            name: include_content
+            value: "1"
+            description: ""
+            disabled: true
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.1
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{base_url}}/post"
+        name: create
+        meta:
+          id: req_67178257227444a789d4a5f73b2d1a01
+          created: 1759529916310
+          modified: 1759536233623
+          isPrivate: false
+          description: ""
+          sortKey: -1759529916310
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"post_name": "Post name show",
+            	"post_content": "conteúdo show",
+            	"template_id": 1,
+            	"int_profile_id": 2
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.1
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{base_url}}/post"
+        name: update
+        meta:
+          id: req_24cbfef2cb084c2aa566a9ac9438f6c6
+          created: 1759538118982
+          modified: 1759539538207
+          isPrivate: false
+          description: ""
+          sortKey: -1759488935179
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"post_id": 3,
+            	"post_name": "Post name atualizado",
+            	"post_content": "conteúdo atualizado",
+            	"template_id": 1,
+            	"int_profile_id": 1
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.1
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{base_url}}/post"
+        name: delete
+        meta:
+          id: req_37d10973f7634751b46354bf38ac12fa
+          created: 1759539459498
+          modified: 1759539567647
+          isPrivate: false
+          description: ""
+          sortKey: -1759468444613.5
+        method: DELETE
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"post_id": 3
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.1
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: templates
+    meta:
+      id: fld_783dea9419484384816e8fb19830b2f0
+      created: 1760051795472
+      modified: 1760051795472
+      sortKey: -1744550419801
+      description: ""
+    children:
+      - url: "{{base_url}}/templates/basic"
+        name: list for dropdown
+        meta:
+          id: req_3d2552704b054b78ad7bf58ddad6f0df
+          created: 1759447954048
+          modified: 1760137053208
+          isPrivate: false
+          description: ""
+          sortKey: -1759509425794.5
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.1
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{base_url}}/templates"
+        name: list
+        meta:
+          id: req_f9a02bfd28a64035816bde9ed435489c
+          created: 1760051795473
+          modified: 1761425806523
+          isPrivate: false
+          description: ""
+          sortKey: -1759529916410
+        method: GET
+        parameters:
+          - id: pair_f8921a967cae4207b4af1a4ccee19083
+            name: template_id
+            value: "1"
+            description: ""
+            disabled: true
+          - id: pair_abfc3ad035ff41e48255c6b9a1978f1d
+            name: include_content
+            value: "1"
+            description: ""
+            disabled: false
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.1
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{base_url}}/templates"
+        name: create
+        meta:
+          id: req_3fb232e5404741fd82c8dcb422234fb3
+          created: 1760051795474
+          modified: 1761447650313
+          isPrivate: false
+          description: ""
+          sortKey: -1759529916510
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"template_name": "template brabo demais",
+            	"template_content": "template brabo demais",
+            	"template_url_import": "template brabo demais"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.1
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{base_url}}/templates"
+        name: update
+        meta:
+          id: req_80333e5375144d0db965fd5e60e5d9af
+          created: 1760051795474
+          modified: 1760064919622
+          isPrivate: false
+          description: ""
+          sortKey: -1759488935179
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"template_id": 1,
+            	"template_name": "template brabo demais toppp",
+            	"template_content": "template brabo demais toppp",
+            	"template_url_import": "template brabo demais toppp"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.1
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{base_url}}/templates"
+        name: delete
+        meta:
+          id: req_5f87d3935e8c472584159cf3474b8eec
+          created: 1760051795475
+          modified: 1760066829472
+          isPrivate: false
+          description: ""
+          sortKey: -1759468444613.5
+        method: DELETE
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"template_id": 3
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.1
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: integration_profiles
+    meta:
+      id: fld_a1a9bcfe1a9e47af8d0e2a9aa8aa1e2a
+      created: 1760137048704
+      modified: 1760137048704
+      sortKey: -1737403348381.5
+      description: ""
+    children:
+      - url: "{{base_url}}/int_profiles/basic"
+        name: list for dropdown
+        meta:
+          id: req_456b846a6d9346a1abc2151ab79f4050
+          created: 1759449495172
+          modified: 1760137055697
+          isPrivate: false
+          description: ""
+          sortKey: -1759509425794.5
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.1
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{base_url}}/int_profiles"
+        name: list
+        meta:
+          id: req_31a74f31bdc244f7bc822ec4e6636bf2
+          created: 1760137048705
+          modified: 1760138856021
+          isPrivate: false
+          description: ""
+          sortKey: -1759529916410
+        method: GET
+        parameters:
+          - id: pair_f8921a967cae4207b4af1a4ccee19083
+            name: int_profile_id
+            value: "1"
+            description: ""
+            disabled: true
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.1
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{base_url}}/int_profiles"
+        name: create
+        meta:
+          id: req_5a42d3063714457e86bd484694eea086
+          created: 1760137048706
+          modified: 1761623491055
+          isPrivate: false
+          description: ""
+          sortKey: -1759529916510
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"int_profile_name": "Novo Perfil de Integração",
+            	"color_id": 1,
+            	"credentials": [1, 2]
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.1
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{base_url}}/int_profiles"
+        name: delete
+        meta:
+          id: req_04912d9b64cb4a0aa89d08bfd5c1280f
+          created: 1760137048707
+          modified: 1760142117690
+          isPrivate: false
+          description: ""
+          sortKey: -1759468444613.5
+        method: DELETE
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"int_profile_id": 3
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.1
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{base_url}}/int_profiles"
+        name: update
+        meta:
+          id: req_ee2e5d49bafa4997b0d62a92bdcef1ed
+          created: 1760137048707
+          modified: 1761624316815
+          isPrivate: false
+          description: ""
+          sortKey: -1759488935179
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"int_profile_id": 4,
+            	"int_profile_name": "Integração topzera",
+            	"color_id": 2,
+            	"credentials": [3]
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.1
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: integration_credentials
+    meta:
+      id: fld_05dd95472403410aa251967192aee429
+      created: 1761507118347
+      modified: 1761507120727
+      sortKey: -1733829812671.75
+      description: ""
+    children:
+      - url: "{{base_url}}/int_credentials/basic"
+        name: list for dropdown
+        meta:
+          id: req_e5468e4833244a03bba02aca5dd399ba
+          created: 1761507118348
+          modified: 1761511056729
+          isPrivate: false
+          description: ""
+          sortKey: -1759509425794.5
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.1
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{base_url}}/int_credentials"
+        name: list
+        meta:
+          id: req_f462b325f68b4db08a6e11906320d42b
+          created: 1761507118349
+          modified: 1761513447381
+          isPrivate: false
+          description: ""
+          sortKey: -1759529916410
+        method: GET
+        parameters:
+          - id: pair_f8921a967cae4207b4af1a4ccee19083
+            name: int_credential_id
+            value: "1"
+            description: ""
+            disabled: false
+          - id: pair_2d9ac8378f004c7f80750b27a940c147
+            name: include_config
+            value: "1"
+            description: ""
+            disabled: false
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.1
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{base_url}}/int_credentials"
+        name: create
+        meta:
+          id: req_12454fe09b92448c8fc90a3675dc4507
+          created: 1761507118350
+          modified: 1761515130744
+          isPrivate: false
+          description: ""
+          sortKey: -1759529916510
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"int_credential_name": "Linkedinho",
+            	"int_credential_type": "linkedin",
+            	"int_credential_config": "{}"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.1
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{base_url}}/int_credentials"
+        name: delete
+        meta:
+          id: req_b11d6039885b49489ece00ece38b09f0
+          created: 1761507118350
+          modified: 1761515383316
+          isPrivate: false
+          description: ""
+          sortKey: -1759468444613.5
+        method: DELETE
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"int_credential_id": 5
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.1
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{base_url}}/int_credentials"
+        name: update
+        meta:
+          id: req_d2a40ab471024edb882042a7837946e1
+          created: 1761507118351
+          modified: 1761515327005
+          isPrivate: false
+          description: ""
+          sortKey: -1759488935179
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"int_credential_id": 4,
+            	"int_credential_name": "Linkedinho",
+            	"int_credential_type": "twitter",
+            	"int_credential_config": "{}"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.1
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_d382f5fd896d4cafe9c9a8b639043d99a4bdf9cf
+    created: 1758844512931
+    modified: 1758844512931
+environments:
+  name: Base Environment
+  meta:
+    id: env_d382f5fd896d4cafe9c9a8b639043d99a4bdf9cf
+    created: 1758844512928
+    modified: 1758844546126
+    isPrivate: false
+  data:
+    base_url: http://localhost:8082
