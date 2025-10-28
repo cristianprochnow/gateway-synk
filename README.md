@@ -357,32 +357,66 @@ int_profile_id=1
 
 ```json
 {
-    "resource": {
-        "ok": true,
-        "error": ""
-    },
-    "int_profiles": [
-        {
-            "int_profile_id": "1",
-            "int_profile_name": "Alice Marketing Profiles",
-            "color_id": 1,
-            "color_name": "Primary Blue",
-            "color_hex": "007BFF",
-            "created_at": "25/09/2025 21:19:06"
-        },
-        {
-            "int_profile_id": "2",
-            "int_profile_name": "Bob Tech Profiles",
-            "color_id": 2,
-            "color_name": "Success Green",
-            "color_hex": "28A745",
-            "created_at": "25/09/2025 21:19:06"
-        }
-    ]
+	"resource": {
+		"ok": true,
+		"error": ""
+	},
+	"int_profiles": [
+		{
+			"int_profile_id": 1,
+			"int_profile_name": "Alice Marketing Profiles",
+			"color_id": 1,
+			"color_name": "Primary Blue",
+			"color_hex": "007BFF",
+			"created_at": "25/09/2025 21:19:06",
+			"credentials": [
+				{
+					"int_credential_id": 1,
+					"int_credential_name": "Alice Twitter Account",
+					"int_credential_type": "twitter"
+				},
+				{
+					"int_credential_id": 3,
+					"int_credential_name": "Alice LinkedIn Account",
+					"int_credential_type": "linkedin"
+				}
+			]
+		},
+		{
+			"int_profile_id": 2,
+			"int_profile_name": "Bob Tech Profiles",
+			"color_id": 2,
+			"color_name": "Success Green",
+			"color_hex": "28A745",
+			"created_at": "25/09/2025 21:19:06",
+			"credentials": [
+				{
+					"int_credential_id": 2,
+					"int_credential_name": "Bob LinkedIn Account",
+					"int_credential_type": "linkedin"
+				}
+			]
+		},
+		{
+			"int_profile_id": 4,
+			"int_profile_name": "Integração topzera",
+			"color_id": 2,
+			"color_name": "Success Green",
+			"color_hex": "28A745",
+			"created_at": "28/10/2025 00:58:31",
+			"credentials": [
+				{
+					"int_credential_id": 3,
+					"int_credential_name": "Alice LinkedIn Account",
+					"int_credential_type": "linkedin"
+				}
+			]
+		}
+	]
 }
 ```
 
-## Create a Template
+## Create a Integration Profile
 
 > `POST` /int_profiles
 
@@ -390,8 +424,9 @@ int_profile_id=1
 
 ```json
 {
-    "int_profile_name": "Novo Perfil de Integração",
-    "color_id": 1
+	"int_profile_name": "Novo Perfil de Integração",
+	"color_id": 1,
+	"credentials": [1, 2]
 }
 ```
 
@@ -409,7 +444,7 @@ int_profile_id=1
 }
 ```
 
-## Update a Template
+## Update a Integration Profile
 
 > `PUT` /int_profiles
 
@@ -417,9 +452,10 @@ int_profile_id=1
 
 ```json
 {
-    "int_profile_id": 3,
-    "int_profile_name": "Integração topzera",
-    "color_id": 2
+	"int_profile_id": 4,
+	"int_profile_name": "Integração topzera",
+	"color_id": 2,
+	"credentials": [3]
 }
 ```
 
@@ -437,7 +473,7 @@ int_profile_id=1
 }
 ```
 
-## Delete a Template
+## Delete a Integration Profile
 
 > `DELETE` /int_profiles
 
