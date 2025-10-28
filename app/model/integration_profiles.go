@@ -222,7 +222,7 @@ func (ip *IntProfiles) Add(intProfile IntProfileAddData, intCredentials []int) (
 	return intProfileId, nil
 }
 
-func (ip *IntProfiles) Update(intProfile IntProfileUpdateData) (int, error) {
+func (ip *IntProfiles) Update(intProfile IntProfileUpdateData, intCredentials []int) (int, error) {
 	var rowsAffected int64
 
 	updateRes, updateErr := ip.db.ExecContext(
@@ -243,6 +243,20 @@ func (ip *IntProfiles) Update(intProfile IntProfileUpdateData) (int, error) {
 
 	if exception != nil {
 		return int(rowsAffected), fmt.Errorf("models.integration_profiles.update: %s", exception.Error())
+	}
+
+	ip.db.ExecContext(
+		context.Background(),
+		`DELETE FROM integration_group WHERE int_profile_id = ?`, intProfile.IntProfileId,
+	)
+
+	for _, credentialId := range intCredentials {
+		ip.db.ExecContext(
+			context.Background(),
+			`INSERT INTO synk.integration_group (int_profile_id, int_credential_id)
+            VALUES (?, ?)`,
+			intProfile.IntProfileId, credentialId,
+		)
 	}
 
 	rowsAffected = rowsAffectedVal

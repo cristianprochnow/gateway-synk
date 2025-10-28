@@ -268,11 +268,12 @@ func (ip *IntProfiles) HandleUpdate(w http.ResponseWriter, r *http.Request) {
 
 	hasAllData := intProfile.IntProfileId != 0 &&
 		intProfile.IntProfileName != "" &&
-		intProfile.ColorId != 0
+		intProfile.ColorId != 0 &&
+		len(intProfile.CredentialsList) > 0
 
 	if !hasAllData {
 		response.Resource.Ok = false
-		response.Resource.Error = "fields int_profile_id, int_profile_name, color_id are required"
+		response.Resource.Error = "fields int_profile_id, int_profile_name, color_id and credentials are required"
 
 		WriteErrorResponse(w, response, "/int_profiles", response.Resource.Error, http.StatusBadRequest)
 
@@ -301,11 +302,32 @@ func (ip *IntProfiles) HandleUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	allCredentialsExists := true
+
+	for _, credentialId := range intProfile.CredentialsList {
+		credentialSearchResult, credentialSearchError := ip.IntCredentialModel.List(strconv.Itoa(credentialId), false)
+
+		if credentialSearchError != nil || len(credentialSearchResult) == 0 {
+			allCredentialsExists = false
+
+			break
+		}
+	}
+
+	if !allCredentialsExists {
+		response.Resource.Ok = false
+		response.Resource.Error = "not all credential IDs from list are valid or exists"
+
+		WriteErrorResponse(w, response, "/int_profiles", response.Resource.Error, http.StatusBadRequest)
+
+		return
+	}
+
 	rowsAffected, updateErr := ip.model.Update(model.IntProfileUpdateData{
 		IntProfileId:   intProfile.IntProfileId,
 		IntProfileName: intProfile.IntProfileName,
 		ColorId:        intProfile.ColorId,
-	})
+	}, intProfile.CredentialsList)
 
 	if updateErr != nil {
 		response.Resource.Ok = false
