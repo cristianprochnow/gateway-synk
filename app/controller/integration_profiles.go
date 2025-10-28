@@ -109,13 +109,23 @@ func (ip *IntProfiles) HandleList(w http.ResponseWriter, r *http.Request) {
 
 	intProfileId := r.URL.Query().Get("int_profile_id")
 
-	templateList, templateErr := ip.model.List(intProfileId)
+	intProfileList, templateErr := ip.model.List(intProfileId)
+
+	serializeProfileList := []model.IntProfileList{}
+
+	for _, intProfileItem := range intProfileList {
+		itemCredentialsList, _ := ip.IntCredentialModel.BasicListByProfile(intProfileItem.IntProfileId)
+
+		intProfileItem.Credentials = itemCredentialsList
+
+		serializeProfileList = append(serializeProfileList, intProfileItem)
+	}
 
 	response := HandleIntProfileListResponse{
 		Resource: ResponseHeader{
 			Ok: true,
 		},
-		Data: templateList,
+		Data: serializeProfileList,
 	}
 
 	if templateErr != nil {

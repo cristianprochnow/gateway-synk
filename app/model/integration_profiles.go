@@ -24,12 +24,13 @@ type IntProfilesByIdData struct {
 }
 
 type IntProfileList struct {
-	IntProfileId   string `json:"int_profile_id"`
-	IntProfileName string `json:"int_profile_name"`
-	ColorId        int    `json:"color_id"`
-	ColorName      string `json:"color_name"`
-	ColorHex       string `json:"color_hex"`
-	CreatedAt      string `json:"created_at"`
+	IntProfileId   int                       `json:"int_profile_id"`
+	IntProfileName string                    `json:"int_profile_name"`
+	ColorId        int                       `json:"color_id"`
+	ColorName      string                    `json:"color_name"`
+	ColorHex       string                    `json:"color_hex"`
+	CreatedAt      string                    `json:"created_at"`
+	Credentials    []IntCredentialsBasicList `json:"credentials"`
 }
 
 type IntProfileAddData struct {
@@ -176,11 +177,11 @@ func (ip *IntProfiles) List(id string) ([]IntProfileList, error) {
 			&intProfile.CreatedAt,
 		)
 
-		intProfile.CreatedAt = util.ToTimeBR(intProfile.CreatedAt)
-
 		if exception != nil {
 			return nil, fmt.Errorf("models.integration_profiles.list: %s", exception.Error())
 		}
+
+		intProfile.CreatedAt = util.ToTimeBR(intProfile.CreatedAt)
 
 		intProfiles = append(intProfiles, intProfile)
 	}

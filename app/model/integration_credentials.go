@@ -105,6 +105,49 @@ func (ic *IntCredentials) BasicList() ([]IntCredentialsBasicList, error) {
 	return intCredentials, nil
 }
 
+func (ic *IntCredentials) BasicListByProfile(profileId int) ([]IntCredentialsBasicList, error) {
+	var intCredentials []IntCredentialsBasicList
+
+	rows, rowsErr := ic.db.Query(
+		`SELECT credential.int_credential_id, credential.int_credential_name, credential.int_credential_type
+        FROM integration_group int_group
+        LEFT JOIN integration_credential credential ON credential.int_credential_id = int_group.int_credential_id
+            AND credential.deleted_at IS NULL
+        WHERE int_group.int_profile_id = ?
+        ORDER BY credential.int_credential_type, credential.int_credential_name`, profileId,
+	)
+
+	if rowsErr != nil {
+		return nil, fmt.Errorf("models.int_credentials.basic_list_by_profile: %s", rowsErr.Error())
+	}
+
+	defer rows.Close()
+
+	rowsErr = rows.Err()
+
+	if rowsErr != nil {
+		return nil, fmt.Errorf("models.int_credentials.basic_list_by_profile: %s", rowsErr.Error())
+	}
+
+	for rows.Next() {
+		var intCredential IntCredentialsBasicList
+
+		exception := rows.Scan(
+			&intCredential.IntCredentialId,
+			&intCredential.IntCredentialName,
+			&intCredential.IntCredentialType,
+		)
+
+		if exception != nil {
+			return nil, fmt.Errorf("models.int_credentials.basic_list_by_profile: %s", exception.Error())
+		}
+
+		intCredentials = append(intCredentials, intCredential)
+	}
+
+	return intCredentials, nil
+}
+
 func (ic *IntCredentials) List(id string, includeConfig bool) ([]IntCredentialList, error) {
 	var intCredentials []IntCredentialList
 
