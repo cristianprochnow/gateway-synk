@@ -24,12 +24,13 @@ type IntProfilesByIdData struct {
 }
 
 type IntProfileList struct {
-	IntProfileId   string `json:"int_profile_id"`
-	IntProfileName string `json:"int_profile_name"`
-	ColorId        int    `json:"color_id"`
-	ColorName      string `json:"color_name"`
-	ColorHex       string `json:"color_hex"`
-	CreatedAt      string `json:"created_at"`
+	IntProfileId   int                       `json:"int_profile_id"`
+	IntProfileName string                    `json:"int_profile_name"`
+	ColorId        int                       `json:"color_id"`
+	ColorName      string                    `json:"color_name"`
+	ColorHex       string                    `json:"color_hex"`
+	CreatedAt      string                    `json:"created_at"`
+	Credentials    []IntCredentialsBasicList `json:"credentials"`
 }
 
 type IntProfileAddData struct {
@@ -176,11 +177,11 @@ func (ip *IntProfiles) List(id string) ([]IntProfileList, error) {
 			&intProfile.CreatedAt,
 		)
 
-		intProfile.CreatedAt = util.ToTimeBR(intProfile.CreatedAt)
-
 		if exception != nil {
 			return nil, fmt.Errorf("models.integration_profiles.list: %s", exception.Error())
 		}
+
+		intProfile.CreatedAt = util.ToTimeBR(intProfile.CreatedAt)
 
 		intProfiles = append(intProfiles, intProfile)
 	}
@@ -188,7 +189,7 @@ func (ip *IntProfiles) List(id string) ([]IntProfileList, error) {
 	return intProfiles, nil
 }
 
-func (ip *IntProfiles) Add(intProfile IntProfileAddData) (int, error) {
+func (ip *IntProfiles) Add(intProfile IntProfileAddData, intCredentials []int) (int, error) {
 	var intProfileId int
 
 	insertRes, insertErr := ip.db.ExecContext(
@@ -210,10 +211,19 @@ func (ip *IntProfiles) Add(intProfile IntProfileAddData) (int, error) {
 
 	intProfileId = int(id)
 
+	for _, credentialId := range intCredentials {
+		ip.db.ExecContext(
+			context.Background(),
+			`INSERT INTO synk.integration_group (int_profile_id, int_credential_id)
+            VALUES (?, ?)`,
+			intProfileId, credentialId,
+		)
+	}
+
 	return intProfileId, nil
 }
 
-func (ip *IntProfiles) Update(intProfile IntProfileUpdateData) (int, error) {
+func (ip *IntProfiles) Update(intProfile IntProfileUpdateData, intCredentials []int) (int, error) {
 	var rowsAffected int64
 
 	updateRes, updateErr := ip.db.ExecContext(
@@ -234,6 +244,20 @@ func (ip *IntProfiles) Update(intProfile IntProfileUpdateData) (int, error) {
 
 	if exception != nil {
 		return int(rowsAffected), fmt.Errorf("models.integration_profiles.update: %s", exception.Error())
+	}
+
+	ip.db.ExecContext(
+		context.Background(),
+		`DELETE FROM integration_group WHERE int_profile_id = ?`, intProfile.IntProfileId,
+	)
+
+	for _, credentialId := range intCredentials {
+		ip.db.ExecContext(
+			context.Background(),
+			`INSERT INTO synk.integration_group (int_profile_id, int_credential_id)
+            VALUES (?, ?)`,
+			intProfile.IntProfileId, credentialId,
+		)
 	}
 
 	rowsAffected = rowsAffectedVal

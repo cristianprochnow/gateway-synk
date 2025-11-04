@@ -12,8 +12,9 @@ import (
 )
 
 type IntProfiles struct {
-	model      *model.IntProfiles
-	ColorModel *model.Colors
+	model              *model.IntProfiles
+	ColorModel         *model.Colors
+	IntCredentialModel *model.IntCredentials
 }
 
 type HandleIntProfilesBasicListResponse struct {
@@ -36,8 +37,9 @@ type CreateIntProfileCreateDataResponse struct {
 }
 
 type HandleIntProfileCreateRequest struct {
-	IntProfileName string `json:"int_profile_name"`
-	ColorId        int    `json:"color_id"`
+	IntProfileName  string `json:"int_profile_name"`
+	ColorId         int    `json:"color_id"`
+	CredentialsList []int  `json:"credentials"`
 }
 
 type HandleIntProfileUpdateResponse struct {
@@ -50,9 +52,10 @@ type UpdateIntProfileDataResponse struct {
 }
 
 type HandleIntProfileUpdateRequest struct {
-	IntProfileId   int    `json:"int_profile_id"`
-	IntProfileName string `json:"int_profile_name"`
-	ColorId        int    `json:"color_id"`
+	IntProfileId    int    `json:"int_profile_id"`
+	IntProfileName  string `json:"int_profile_name"`
+	ColorId         int    `json:"color_id"`
+	CredentialsList []int  `json:"credentials"`
 }
 
 type HandleIntProfileDeleteRequest struct {
@@ -61,8 +64,9 @@ type HandleIntProfileDeleteRequest struct {
 
 func NewIntProfiles(db *sql.DB) *IntProfiles {
 	intProfiles := IntProfiles{
-		model:      model.NewIntProfiles(db),
-		ColorModel: model.NewColors(db),
+		model:              model.NewIntProfiles(db),
+		ColorModel:         model.NewColors(db),
+		IntCredentialModel: model.NewIntCredentials(db),
 	}
 
 	return &intProfiles
@@ -105,13 +109,23 @@ func (ip *IntProfiles) HandleList(w http.ResponseWriter, r *http.Request) {
 
 	intProfileId := r.URL.Query().Get("int_profile_id")
 
-	templateList, templateErr := ip.model.List(intProfileId)
+	intProfileList, templateErr := ip.model.List(intProfileId)
+
+	serializeProfileList := []model.IntProfileList{}
+
+	for _, intProfileItem := range intProfileList {
+		itemCredentialsList, _ := ip.IntCredentialModel.BasicListByProfile(intProfileItem.IntProfileId)
+
+		intProfileItem.Credentials = itemCredentialsList
+
+		serializeProfileList = append(serializeProfileList, intProfileItem)
+	}
 
 	response := HandleIntProfileListResponse{
 		Resource: ResponseHeader{
 			Ok: true,
 		},
-		Data: templateList,
+		Data: serializeProfileList,
 	}
 
 	if templateErr != nil {
@@ -163,11 +177,12 @@ func (ip *IntProfiles) HandleCreate(w http.ResponseWriter, r *http.Request) {
 	intProfile.IntProfileName = strings.TrimSpace(intProfile.IntProfileName)
 
 	hasAllData := intProfile.IntProfileName != "" &&
-		intProfile.ColorId != 0
+		intProfile.ColorId != 0 &&
+		len(intProfile.CredentialsList) > 0
 
 	if !hasAllData {
 		response.Resource.Ok = false
-		response.Resource.Error = "fields int_profile_name, color_id are required"
+		response.Resource.Error = "fields int_profile_name, color_id and credentials are required"
 
 		WriteErrorResponse(w, response, "/int_profiles", response.Resource.Error, http.StatusBadRequest)
 
@@ -185,10 +200,31 @@ func (ip *IntProfiles) HandleCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	allCredentialsExists := true
+
+	for _, credentialId := range intProfile.CredentialsList {
+		credentialSearchResult, credentialSearchError := ip.IntCredentialModel.List(strconv.Itoa(credentialId), false)
+
+		if credentialSearchError != nil || len(credentialSearchResult) == 0 {
+			allCredentialsExists = false
+
+			break
+		}
+	}
+
+	if !allCredentialsExists {
+		response.Resource.Ok = false
+		response.Resource.Error = "not all credential IDs from list are valid or exists"
+
+		WriteErrorResponse(w, response, "/int_profiles", response.Resource.Error, http.StatusBadRequest)
+
+		return
+	}
+
 	creationId, creationErr := ip.model.Add(model.IntProfileAddData{
 		IntProfileName: intProfile.IntProfileName,
 		ColorId:        intProfile.ColorId,
-	})
+	}, intProfile.CredentialsList)
 
 	if creationErr != nil {
 		response.Resource.Ok = false
@@ -242,11 +278,12 @@ func (ip *IntProfiles) HandleUpdate(w http.ResponseWriter, r *http.Request) {
 
 	hasAllData := intProfile.IntProfileId != 0 &&
 		intProfile.IntProfileName != "" &&
-		intProfile.ColorId != 0
+		intProfile.ColorId != 0 &&
+		len(intProfile.CredentialsList) > 0
 
 	if !hasAllData {
 		response.Resource.Ok = false
-		response.Resource.Error = "fields int_profile_id, int_profile_name, color_id are required"
+		response.Resource.Error = "fields int_profile_id, int_profile_name, color_id and credentials are required"
 
 		WriteErrorResponse(w, response, "/int_profiles", response.Resource.Error, http.StatusBadRequest)
 
@@ -275,11 +312,32 @@ func (ip *IntProfiles) HandleUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	allCredentialsExists := true
+
+	for _, credentialId := range intProfile.CredentialsList {
+		credentialSearchResult, credentialSearchError := ip.IntCredentialModel.List(strconv.Itoa(credentialId), false)
+
+		if credentialSearchError != nil || len(credentialSearchResult) == 0 {
+			allCredentialsExists = false
+
+			break
+		}
+	}
+
+	if !allCredentialsExists {
+		response.Resource.Ok = false
+		response.Resource.Error = "not all credential IDs from list are valid or exists"
+
+		WriteErrorResponse(w, response, "/int_profiles", response.Resource.Error, http.StatusBadRequest)
+
+		return
+	}
+
 	rowsAffected, updateErr := ip.model.Update(model.IntProfileUpdateData{
 		IntProfileId:   intProfile.IntProfileId,
 		IntProfileName: intProfile.IntProfileName,
 		ColorId:        intProfile.ColorId,
-	})
+	}, intProfile.CredentialsList)
 
 	if updateErr != nil {
 		response.Resource.Ok = false

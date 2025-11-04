@@ -12,6 +12,7 @@ func Router(service *Service) {
 	postController := controller.NewPosts(service.DB)
 	templateController := controller.NewTemplates(service.DB)
 	intProfileController := controller.NewIntProfiles(service.DB)
+	intCredentialController := controller.NewIntCredentials(service.DB)
 
 	http.HandleFunc("GET /about", aboutController.HandleAbout)
 	http.HandleFunc("GET /post", postController.HandleList)
@@ -28,6 +29,11 @@ func Router(service *Service) {
 	http.HandleFunc("POST /int_profiles", intProfileController.HandleCreate)
 	http.HandleFunc("PUT /int_profiles", intProfileController.HandleUpdate)
 	http.HandleFunc("DELETE /int_profiles", intProfileController.HandleDelete)
+	http.HandleFunc("GET /int_credentials/basic", intCredentialController.HandleBasicList)
+	http.HandleFunc("GET /int_credentials", intCredentialController.HandleList)
+	http.HandleFunc("POST /int_credentials", intCredentialController.HandleCreate)
+	http.HandleFunc("PUT /int_credentials", intCredentialController.HandleUpdate)
+	http.HandleFunc("DELETE /int_credentials", intCredentialController.HandleDelete)
 
 	util.Log("app running on port 8080 to " + os.Getenv("PORT"))
 
