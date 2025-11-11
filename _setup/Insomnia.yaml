@@ -31,7 +31,7 @@ collection:
     meta:
       id: fld_b7de9c95160645fcae32d24f28cc6296
       created: 1758844562640
-      modified: 1758844562640
+      modified: 1762904755846
       sortKey: -1758844562640
       description: ""
     children:
@@ -72,7 +72,7 @@ collection:
         meta:
           id: req_67178257227444a789d4a5f73b2d1a01
           created: 1759529916310
-          modified: 1759536233623
+          modified: 1762904734500
           isPrivate: false
           description: ""
           sortKey: -1759529916310
@@ -161,11 +161,14 @@ collection:
             send: true
             store: true
           rebuildPath: true
+    authentication:
+      type: bearer
+      token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJfaWQiOjR9LCJleHAiOjE3NjI5MDQ4NTIsImlhdCI6MTc2MjkwMzk1Mn0.M3KBkZ_GFHjJwJ5lPVpAlvY2bouUswfx14tw1THeNP8
   - name: templates
     meta:
       id: fld_783dea9419484384816e8fb19830b2f0
       created: 1760051795472
-      modified: 1760051795472
+      modified: 1762904714215
       sortKey: -1744550419801
       description: ""
     children:
@@ -314,11 +317,14 @@ collection:
             send: true
             store: true
           rebuildPath: true
+    authentication:
+      type: bearer
+      token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJfaWQiOjR9LCJleHAiOjE3NjI5MDQ4NTIsImlhdCI6MTc2MjkwMzk1Mn0.M3KBkZ_GFHjJwJ5lPVpAlvY2bouUswfx14tw1THeNP8
   - name: integration_profiles
     meta:
       id: fld_a1a9bcfe1a9e47af8d0e2a9aa8aa1e2a
       created: 1760137048704
-      modified: 1760137048704
+      modified: 1762904760882
       sortKey: -1737403348381.5
       description: ""
     children:
@@ -435,7 +441,7 @@ collection:
         meta:
           id: req_ee2e5d49bafa4997b0d62a92bdcef1ed
           created: 1760137048707
-          modified: 1761624316815
+          modified: 1761880616542
           isPrivate: false
           description: ""
           sortKey: -1759488935179
@@ -447,7 +453,7 @@ collection:
             	"int_profile_id": 4,
             	"int_profile_name": "Integração topzera",
             	"color_id": 2,
-            	"credentials": [3]
+            	"credentials": [1, 2, 3, 6, 7]
             }
         headers:
           - name: Content-Type
@@ -462,11 +468,14 @@ collection:
             send: true
             store: true
           rebuildPath: true
+    authentication:
+      type: bearer
+      token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJfaWQiOjR9LCJleHAiOjE3NjI5MDQ4NTIsImlhdCI6MTc2MjkwMzk1Mn0.M3KBkZ_GFHjJwJ5lPVpAlvY2bouUswfx14tw1THeNP8
   - name: integration_credentials
     meta:
       id: fld_05dd95472403410aa251967192aee429
       created: 1761507118347
-      modified: 1761507120727
+      modified: 1762904766762
       sortKey: -1733829812671.75
       description: ""
     children:
@@ -528,7 +537,7 @@ collection:
         meta:
           id: req_12454fe09b92448c8fc90a3675dc4507
           created: 1761507118350
-          modified: 1761515130744
+          modified: 1761880572454
           isPrivate: false
           description: ""
           sortKey: -1759529916510
@@ -538,7 +547,7 @@ collection:
           text: |-
             {
             	"int_credential_name": "Linkedinho",
-            	"int_credential_type": "linkedin",
+            	"int_credential_type": "instagram",
             	"int_credential_config": "{}"
             }
         headers:
@@ -588,7 +597,7 @@ collection:
         meta:
           id: req_d2a40ab471024edb882042a7837946e1
           created: 1761507118351
-          modified: 1761515327005
+          modified: 1761880190773
           isPrivate: false
           description: ""
           sortKey: -1759488935179
@@ -597,9 +606,9 @@ collection:
           mimeType: application/json
           text: |-
             {
-            	"int_credential_id": 4,
+            	"int_credential_id": 3,
             	"int_credential_name": "Linkedinho",
-            	"int_credential_type": "twitter",
+            	"int_credential_type": "instagram",
             	"int_credential_config": "{}"
             }
         headers:
@@ -615,18 +624,48 @@ collection:
             send: true
             store: true
           rebuildPath: true
+    authentication:
+      type: bearer
+      token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJfaWQiOjR9LCJleHAiOjE3NjI5MDQ4NTIsImlhdCI6MTc2MjkwMzk1Mn0.M3KBkZ_GFHjJwJ5lPVpAlvY2bouUswfx14tw1THeNP8
+  - name: auth
+    meta:
+      id: fld_ed98952020a1455bbaea26206185ca53
+      created: 1762646232048
+      modified: 1762646675914
+      sortKey: -1762646232048
+      description: ""
+    children:
+      - name: users
+        meta:
+          id: fld_23805e95e5f640608a3394845a9186db
+          created: 1762648242203
+          modified: 1762648242203
+          sortKey: -1762648242203
+          description: ""
 cookieJar:
   name: Default Jar
   meta:
     id: jar_d382f5fd896d4cafe9c9a8b639043d99a4bdf9cf
     created: 1758844512931
-    modified: 1758844512931
+    modified: 1762903952748
+  cookies:
+    - key: refresh_token
+      value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJfaWQiOjR9LCJleHAiOjE3NjM1MDg3NTIsImlhdCI6MTc2MjkwMzk1Mn0.iaKmc-pozjSmbZqScJ4NrLNq-OafV3YZdm-PwJySWIw
+      maxAge: 604800
+      domain: localhost
+      path: /
+      httpOnly: true
+      hostOnly: true
+      creation: 2025-11-09T23:29:56.585Z
+      lastAccessed: 2025-11-11T23:32:32.748Z
+      id: 99e89c5d-5fd4-4bcd-aea0-ad4bc71fb9b4
 environments:
   name: Base Environment
   meta:
     id: env_d382f5fd896d4cafe9c9a8b639043d99a4bdf9cf
     created: 1758844512928
-    modified: 1758844546126
+    modified: 1762646183942
     isPrivate: false
   data:
     base_url: http://localhost:8082
+    auth_url: http://localhost:8083
