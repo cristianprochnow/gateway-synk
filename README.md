@@ -19,6 +19,8 @@ The easy way to run tests is just run `docker compose up -d` command to start pr
 
 # Routes
 
+> All routes need to receive the header `Authorization: Bearer eyJhbGciOiJIUzI1NiI...`
+
 ## Get info about app
 
 > `GET` /about
