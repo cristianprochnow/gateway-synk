@@ -6,5 +6,7 @@ services:
       - ${PORT}:8080
     volumes:
       - ./:/app
+      - ./.cert:/cert
+      - ${ROOT_CERTIFICATE_FILE_PATH}:/cert/rootCA.pem:ro
     command: go run .
     env_file: .env
