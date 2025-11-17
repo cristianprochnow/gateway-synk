@@ -1,7 +1,10 @@
 package controller
 
 import (
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -48,9 +51,47 @@ func SetJsonContentType(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json")
 }
 
+func newAuthServiceClient() *http.Client {
+	caCert, caErr := os.ReadFile("/cert/rootCA.pem")
+	if caErr != nil {
+		util.LogRoute("/", "error reading root CA file: "+caErr.Error())
+	}
+
+	caCertPool := x509.NewCertPool()
+	caCertPool.AppendCertsFromPEM(caCert)
+
+	tlsConfig := &tls.Config{
+		RootCAs: caCertPool,
+	}
+
+	transport := &http.Transport{
+		TLSClientConfig: tlsConfig,
+	}
+
+	client := &http.Client{
+		Transport: transport,
+		Timeout:   AUTH_TIMEOUT,
+	}
+
+	return client
+}
+
+var authClient = newAuthServiceClient()
+
 func Cors(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+		var allowedOriginsMap = map[string]struct{}{
+			strings.TrimSuffix(os.Getenv("WEB_ENDPOINT"), "/"): {},
+		}
+
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
+
+		origin := r.Header.Get("Origin")
+		if _, ok := allowedOriginsMap[origin]; ok {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+			w.Header().Set("Vary", "Origin")
+		}
+
 		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 		w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
 
@@ -100,11 +141,9 @@ func Cors(next http.Handler) http.Handler {
 		authReq.Header.Set("Authorization", authHeader)
 		authReq.Header.Set("Accept", "application/json")
 
-		client := &http.Client{
-			Timeout: AUTH_TIMEOUT,
-		}
-		authResp, authRespErr := client.Do(authReq)
+		authResp, authRespErr := authClient.Do(authReq)
 		if authRespErr != nil {
+			fmt.Println(authRespErr.Error())
 			response.Resource.Ok = false
 			response.Resource.Error = "error while contacting auth server"
 
