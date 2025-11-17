@@ -17,6 +17,14 @@ And then, run `docker compose up -d` into project root to start project.
 
 The easy way to run tests is just run `docker compose up -d` command to start project with variables. So, enter in `synk_gateway` with `docker exec` and run `go test ./tests -v`.
 
+## Certificates
+
+This app must run in HTTPS to authentication works properly. So, to install it, just setup `[mkcert](https://github.com/FiloSottile/mkcert)` into your machine and then run command below into root directory of this project.
+
+```
+mkcert -key-file ./.cert/key.pem -cert-file ./.cert/cert.pem 'localhost'
+```
+
 # Routes
 
 > All routes need to receive the header `Authorization: Bearer eyJhbGciOiJIUzI1NiI...`
