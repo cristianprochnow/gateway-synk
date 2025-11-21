@@ -25,6 +25,14 @@ This app must run in HTTPS to authentication works properly. So, to install it, 
 mkcert -key-file ./.cert/key.pem -cert-file ./.cert/cert.pem 'localhost'
 ```
 
+## Network
+
+You can use a custom network for this services, using then `synk_network` you must create before run it. So, to create on just run command below once during initial setup.
+
+```
+docker network create synk_network
+```
+
 # Routes
 
 > All routes need to receive the header `Authorization: Bearer eyJhbGciOiJIUzI1NiI...`
