@@ -22,7 +22,7 @@ The easy way to run tests is just run `docker compose up -d` command to start pr
 This app must run in HTTPS to authentication works properly. So, to install it, just setup `[mkcert](https://github.com/FiloSottile/mkcert)` into your machine and then run command below into root directory of this project.
 
 ```
-mkcert -key-file ./.cert/key.pem -cert-file ./.cert/cert.pem 'localhost'
+mkcert -key-file ./.cert/key.pem -cert-file ./.cert/cert.pem localhost synk_gateway
 ```
 
 ## Network
