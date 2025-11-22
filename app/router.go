@@ -35,15 +35,16 @@ func Router(service *Service) {
 	http.HandleFunc("PUT /int_credentials", intCredentialController.HandleUpdate)
 	http.HandleFunc("DELETE /int_credentials", intCredentialController.HandleDelete)
 
-	util.Log("app running on port 8080 to " + os.Getenv("PORT"))
+	port := os.Getenv("PORT")
+	util.Log("app running on port " + port)
 
 	err := http.ListenAndServeTLS(
-		":8080",
+		":"+port,
 		"/cert/cert.pem",
 		"/cert/key.pem",
 		controller.Cors(http.DefaultServeMux),
 	)
 	if err != nil {
-		util.Log("app failed on running on port 8080: " + err.Error())
+		util.Log("app failed on running on port " + port + ": " + err.Error())
 	}
 }
