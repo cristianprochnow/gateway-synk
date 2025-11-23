@@ -51,12 +51,15 @@ func NewPosts(db *sql.DB) *Posts {
 	return &posts
 }
 
-func (p *Posts) List(id string, includeContent bool) ([]PostsList, error) {
+func (p *Posts) List(id string, includeContent bool, userId int) ([]PostsList, error) {
 	var posts []PostsList
 
 	whereList := []string{}
 	whereValues := []any{}
 	columnsList := []string{}
+
+	whereList = append(whereList, "post.user_id = ?")
+	whereValues = append(whereValues, userId)
 
 	if id != "" {
 		whereList = append(whereList, "post_id = ?")
@@ -144,14 +147,14 @@ func (p *Posts) List(id string, includeContent bool) ([]PostsList, error) {
 	return posts, nil
 }
 
-func (p *Posts) Add(post PostAddData) (int, error) {
+func (p *Posts) Add(post PostAddData, userId int) (int, error) {
 	var postId int
 
 	insertRes, insertErr := p.db.ExecContext(
 		context.Background(),
-		`INSERT INTO synk.post (post_name, post_content, template_id, int_profile_id)
-        VALUES (?, ?, ?, ?)`,
-		post.PostName, post.PostContent, post.TemplateId, post.IntProfileId,
+		`INSERT INTO synk.post (post_name, post_content, template_id, int_profile_id, user_id)
+        VALUES (?, ?, ?, ?, ?)`,
+		post.PostName, post.PostContent, post.TemplateId, post.IntProfileId, userId,
 	)
 
 	if insertErr != nil {
@@ -169,7 +172,7 @@ func (p *Posts) Add(post PostAddData) (int, error) {
 	return postId, nil
 }
 
-func (p *Posts) Update(post PostUpdateData) (int, error) {
+func (p *Posts) Update(post PostUpdateData, userId int) (int, error) {
 	var rowsAffected int64
 
 	insertRes, insertErr := p.db.ExecContext(
@@ -180,8 +183,8 @@ func (p *Posts) Update(post PostUpdateData) (int, error) {
             template_id = ?,
             int_profile_id = ?,
             updated_at = CURRENT_TIMESTAMP
-        WHERE post_id = ? AND deleted_at IS NULL`,
-		post.PostName, post.PostContent, post.TemplateId, post.IntProfileId, post.PostId,
+        WHERE deleted_at IS NULL AND user_id = ? AND post_id = ?`,
+		post.PostName, post.PostContent, post.TemplateId, post.IntProfileId, userId, post.PostId,
 	)
 
 	if insertErr != nil {
@@ -199,14 +202,15 @@ func (p *Posts) Update(post PostUpdateData) (int, error) {
 	return int(rowsAffected), nil
 }
 
-func (p *Posts) Delete(postId int) (int, error) {
+func (p *Posts) Delete(postId int, userId int) (int, error) {
 	var rowsAffected int64
 
 	insertRes, insertErr := p.db.ExecContext(
 		context.Background(),
 		`UPDATE post
         SET deleted_at = CURRENT_TIMESTAMP
-        WHERE post_id = ?`, postId,
+        WHERE deleted_at IS NULL AND user_id = ? AND post_id = ?`,
+		userId, postId,
 	)
 
 	if insertErr != nil {
@@ -224,13 +228,14 @@ func (p *Posts) Delete(postId int) (int, error) {
 	return int(rowsAffected), nil
 }
 
-func (p *Posts) ById(postId int) (PostByIdData, error) {
+func (p *Posts) ById(postId int, userId int) (PostByIdData, error) {
 	var post PostByIdData
 
 	rows, rowsErr := p.db.Query(
 		`SELECT post_id
         FROM post
-        WHERE post_id = ? AND deleted_at IS NULL`, postId,
+        WHERE deleted_at IS NULL AND user_id = ? AND post_id = ?`,
+		userId, postId,
 	)
 
 	if rowsErr != nil {

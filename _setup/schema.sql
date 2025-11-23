@@ -37,7 +37,7 @@ CREATE TABLE `auth` (
   UNIQUE KEY `oauth_id_UNIQUE` (`oauth_id`),
   KEY `fk_user_id_idx` (`user_id`),
   CONSTRAINT `fk_user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -54,8 +54,23 @@ CREATE TABLE `color` (
   PRIMARY KEY (`color_id`),
   UNIQUE KEY `color_id_UNIQUE` (`color_id`),
   UNIQUE KEY `color_hex_UNIQUE` (`color_hex`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+insert into
+  `color` (`color_hex`, `color_id`, `color_name`)
+values
+  ('FFC107', 3, 'Warning Yellow');
+
+insert into
+  `color` (`color_hex`, `color_id`, `color_name`)
+values
+  ('28A745', 2, 'Success Green');
+
+insert into
+  `color` (`color_hex`, `color_id`, `color_name`)
+values
+  ('007BFF', 1, 'Primary Blue');
 
 --
 -- Table structure for table `integration_credential`
@@ -77,7 +92,7 @@ CREATE TABLE `integration_credential` (
   UNIQUE KEY `int_credential_id_UNIQUE` (`int_credential_id`),
   KEY `int_credential_user_fk_idx` (`user_id`),
   CONSTRAINT `int_credential_user_fk` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -97,7 +112,7 @@ CREATE TABLE `integration_group` (
   KEY `fk_int_profile_id_idx` (`int_profile_id`),
   CONSTRAINT `fk_integration_group_int_credential_id` FOREIGN KEY (`int_credential_id`) REFERENCES `integration_credential` (`int_credential_id`),
   CONSTRAINT `fk_integration_group_int_profile_id` FOREIGN KEY (`int_profile_id`) REFERENCES `integration_profile` (`int_profile_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -121,7 +136,7 @@ CREATE TABLE `integration_profile` (
   KEY `int_profile_user_fk` (`user_id`),
   CONSTRAINT `fk_integration_profile_color_id` FOREIGN KEY (`color_id`) REFERENCES `color` (`color_id`),
   CONSTRAINT `int_profile_user_fk` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -149,7 +164,7 @@ CREATE TABLE `post` (
   CONSTRAINT `fk_post_int_profile` FOREIGN KEY (`int_profile_id`) REFERENCES `integration_profile` (`int_profile_id`),
   CONSTRAINT `fk_post_template_id` FOREIGN KEY (`template_id`) REFERENCES `template` (`template_id`),
   CONSTRAINT `post_user_fk` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -174,7 +189,7 @@ CREATE TABLE `publication` (
   KEY `fk_int_credential_id_idx` (`int_credential_id`),
   CONSTRAINT `fk_publication_int_credential_id` FOREIGN KEY (`int_credential_id`) REFERENCES `integration_credential` (`int_credential_id`),
   CONSTRAINT `fk_publication_post_id` FOREIGN KEY (`post_id`) REFERENCES `post` (`post_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -197,7 +212,7 @@ CREATE TABLE `template` (
   UNIQUE KEY `template_id_UNIQUE` (`template_id`),
   KEY `fk_user_id_idx` (`user_id`),
   CONSTRAINT `fk_template_user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -217,7 +232,7 @@ CREATE TABLE `user` (
   `deleted_at` datetime DEFAULT NULL,
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `user_email_UNIQUE` (`user_email`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;

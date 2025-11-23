@@ -55,13 +55,14 @@ func NewTemplates(db *sql.DB) *Templates {
 	return &templates
 }
 
-func (t *Templates) BasicList() ([]TemplatesBasicList, error) {
+func (t *Templates) BasicList(userId int) ([]TemplatesBasicList, error) {
 	var templates []TemplatesBasicList
 
 	rows, rowsErr := t.db.Query(
 		`SELECT template_id, template_name
         FROM template
-        ORDER BY template_name`,
+        WHERE deleted_at IS NULL AND user_id = ?
+        ORDER BY template_name`, userId,
 	)
 
 	if rowsErr != nil {
@@ -95,13 +96,14 @@ func (t *Templates) BasicList() ([]TemplatesBasicList, error) {
 	return templates, nil
 }
 
-func (t *Templates) ById(templateId int) (TemplatesByIdData, error) {
+func (t *Templates) ById(templateId int, userId int) (TemplatesByIdData, error) {
 	var template TemplatesByIdData
 
 	rows, rowsErr := t.db.Query(
 		`SELECT template_id
         FROM template
-        WHERE template_id = ?`, templateId,
+        WHERE deleted_at IS NULL AND user_id = ? AND template_id = ?`,
+		userId, templateId,
 	)
 
 	if rowsErr != nil {
@@ -129,12 +131,15 @@ func (t *Templates) ById(templateId int) (TemplatesByIdData, error) {
 	return template, nil
 }
 
-func (t *Templates) List(id string, includeContent bool) ([]TemplatesList, error) {
+func (t *Templates) List(id string, includeContent bool, userId int) ([]TemplatesList, error) {
 	var templates []TemplatesList
 
 	whereList := []string{}
 	whereValues := []any{}
 	columnsList := []string{}
+
+	whereList = append(whereList, "user_id = ?")
+	whereValues = append(whereValues, userId)
 
 	if id != "" {
 		whereList = append(whereList, "template_id = ?")
@@ -225,7 +230,7 @@ func (t *Templates) Add(template TemplateAddData) (int, error) {
 	return templateId, nil
 }
 
-func (t *Templates) Update(template TemplateUpdateData) (int, error) {
+func (t *Templates) Update(template TemplateUpdateData, userId int) (int, error) {
 	var rowsAffected int64
 
 	updateRes, updateErr := t.db.ExecContext(
@@ -235,9 +240,10 @@ func (t *Templates) Update(template TemplateUpdateData) (int, error) {
             template_content = ?,
             template_url_import = ?,
             updated_at = CURRENT_TIMESTAMP
-        WHERE template_id = ? AND
-              deleted_at IS NULL`,
-		template.TemplateName, template.TemplateContent, template.TemplateUrlImport, template.TemplateId,
+        WHERE deleted_at IS NULL AND
+            user_id = ? AND
+            template_id = ?`,
+		template.TemplateName, template.TemplateContent, template.TemplateUrlImport, userId, template.TemplateId,
 	)
 
 	if updateErr != nil {
@@ -255,14 +261,16 @@ func (t *Templates) Update(template TemplateUpdateData) (int, error) {
 	return int(rowsAffected), nil
 }
 
-func (t *Templates) Delete(templateId int) (int, error) {
+func (t *Templates) Delete(templateId int, userId int) (int, error) {
 	var rowsAffected int64
 
 	insertRes, insertErr := t.db.ExecContext(
 		context.Background(),
 		`UPDATE template
         SET deleted_at = CURRENT_TIMESTAMP
-        WHERE template_id = ?`, templateId,
+        WHERE deleted_at IS NULL AND
+            user_id = ? AND
+            template_id = ?`, userId, templateId,
 	)
 
 	if insertErr != nil {

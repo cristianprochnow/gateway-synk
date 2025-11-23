@@ -73,19 +73,32 @@ func NewIntCredentials(db *sql.DB) *IntCredentials {
 func (ic *IntCredentials) HandleBasicList(w http.ResponseWriter, r *http.Request) {
 	SetJsonContentType(w)
 
-	intCredentialsList, intProfilesErr := ic.model.BasicList()
-
 	response := HandleIntCredentialsBasicListResponse{
 		Resource: ResponseHeader{
 			Ok: true,
 		},
-		Data: intCredentialsList,
+		Data: []model.IntCredentialsBasicList{},
 	}
+
+	ctxUserId := r.Context().Value(CONTEXT_USER_ID_KEY).(int)
+
+	if ctxUserId == 0 {
+		response.Resource.Ok = false
+		response.Resource.Error = "reference to user not found in context"
+
+		WriteErrorResponse(w, response, "/int_profiles/basic", response.Resource.Error, http.StatusInternalServerError)
+
+		return
+	}
+
+	intCredentialsList, intProfilesErr := ic.model.BasicList(ctxUserId)
 
 	if intProfilesErr != nil {
 		response.Resource.Ok = false
 		response.Resource.Error = intProfilesErr.Error()
 	}
+
+	response.Data = intCredentialsList
 
 	jsonResp, jsonErr := json.Marshal(response)
 	if jsonErr != nil {
@@ -108,14 +121,25 @@ func (ic *IntCredentials) HandleList(w http.ResponseWriter, r *http.Request) {
 	intCredentialId := r.URL.Query().Get("int_credential_id")
 	includeConfig := r.URL.Query().Get("include_config")
 
-	intCredentialList, intCrendentialErr := ic.model.List(intCredentialId, includeConfig == "1")
-
 	response := HandleIntCredentialListResponse{
 		Resource: ResponseHeader{
 			Ok: true,
 		},
-		Data: intCredentialList,
+		Data: []model.IntCredentialList{},
 	}
+
+	ctxUserId := r.Context().Value(CONTEXT_USER_ID_KEY).(int)
+
+	if ctxUserId == 0 {
+		response.Resource.Ok = false
+		response.Resource.Error = "reference to user not found in context"
+
+		WriteErrorResponse(w, response, "/int_credentials", response.Resource.Error, http.StatusInternalServerError)
+
+		return
+	}
+
+	intCredentialList, intCrendentialErr := ic.model.List(intCredentialId, includeConfig == "1", ctxUserId)
 
 	if intCrendentialErr != nil {
 		response.Resource.Ok = false
@@ -125,6 +149,8 @@ func (ic *IntCredentials) HandleList(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
+
+	response.Data = intCredentialList
 
 	WriteSuccessResponse(w, response)
 }
@@ -137,6 +163,17 @@ func (ic *IntCredentials) HandleCreate(w http.ResponseWriter, r *http.Request) {
 			Ok: true,
 		},
 		Data: CreateIntCredentialCreateDataResponse{},
+	}
+
+	ctxUserId := r.Context().Value(CONTEXT_USER_ID_KEY).(int)
+
+	if ctxUserId == 0 {
+		response.Resource.Ok = false
+		response.Resource.Error = "reference to user not found in context"
+
+		WriteErrorResponse(w, response, "/int_credentials", response.Resource.Error, http.StatusInternalServerError)
+
+		return
 	}
 
 	bodyContent, bodyErr := io.ReadAll(r.Body)
@@ -182,7 +219,7 @@ func (ic *IntCredentials) HandleCreate(w http.ResponseWriter, r *http.Request) {
 		IntCredentialName:   intCredential.IntCredentialName,
 		IntCredentialType:   intCredential.IntCredentialType,
 		IntCredentialConfig: intCredential.IntCredentialConfig,
-	})
+	}, ctxUserId)
 
 	if creationErr != nil {
 		response.Resource.Ok = false
@@ -206,6 +243,17 @@ func (ic *IntCredentials) HandleUpdate(w http.ResponseWriter, r *http.Request) {
 			Ok: true,
 		},
 		Data: UpdateIntCredentialDataResponse{},
+	}
+
+	ctxUserId := r.Context().Value(CONTEXT_USER_ID_KEY).(int)
+
+	if ctxUserId == 0 {
+		response.Resource.Ok = false
+		response.Resource.Error = "reference to user not found in context"
+
+		WriteErrorResponse(w, response, "/int_credentials", response.Resource.Error, http.StatusInternalServerError)
+
+		return
 	}
 
 	bodyContent, bodyErr := io.ReadAll(r.Body)
@@ -248,7 +296,7 @@ func (ic *IntCredentials) HandleUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	intCredentialById, _ := ic.model.List(strconv.Itoa(intCredential.IntCredentialId), false)
+	intCredentialById, _ := ic.model.List(strconv.Itoa(intCredential.IntCredentialId), false, ctxUserId)
 
 	if len(intCredentialById) == 0 {
 		response.Resource.Ok = false
@@ -264,7 +312,7 @@ func (ic *IntCredentials) HandleUpdate(w http.ResponseWriter, r *http.Request) {
 		IntCredentialName:   intCredential.IntCredentialName,
 		IntCredentialType:   intCredential.IntCredentialType,
 		IntCredentialConfig: intCredential.IntCredentialConfig,
-	})
+	}, ctxUserId)
 
 	if updateErr != nil {
 		response.Resource.Ok = false
@@ -288,6 +336,17 @@ func (ic *IntCredentials) HandleDelete(w http.ResponseWriter, r *http.Request) {
 			Ok: true,
 		},
 		Data: UpdateIntCredentialDataResponse{},
+	}
+
+	ctxUserId := r.Context().Value(CONTEXT_USER_ID_KEY).(int)
+
+	if ctxUserId == 0 {
+		response.Resource.Ok = false
+		response.Resource.Error = "reference to user not found in context"
+
+		WriteErrorResponse(w, response, "/int_credentials", response.Resource.Error, http.StatusInternalServerError)
+
+		return
 	}
 
 	bodyContent, bodyErr := io.ReadAll(r.Body)
@@ -325,7 +384,7 @@ func (ic *IntCredentials) HandleDelete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	intCredentialById, _ := ic.model.List(strconv.Itoa(intCredential.IntCredentialId), false)
+	intCredentialById, _ := ic.model.List(strconv.Itoa(intCredential.IntCredentialId), false, ctxUserId)
 
 	if len(intCredentialById) == 0 {
 		response.Resource.Ok = false
@@ -336,7 +395,7 @@ func (ic *IntCredentials) HandleDelete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rowsAffected, updateErr := ic.model.Delete(intCredential.IntCredentialId)
+	rowsAffected, updateErr := ic.model.Delete(intCredential.IntCredentialId, ctxUserId)
 
 	if updateErr != nil {
 		response.Resource.Ok = false

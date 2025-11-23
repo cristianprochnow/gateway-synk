@@ -69,7 +69,7 @@ func NewTemplates(db *sql.DB) *Templates {
 func (t *Templates) HandleBasicList(w http.ResponseWriter, r *http.Request) {
 	SetJsonContentType(w)
 
-	templatesList, templatesErr := t.model.BasicList()
+	var templatesList []model.TemplatesBasicList
 
 	response := HandleTemplateBasicListResponse{
 		Resource: ResponseHeader{
@@ -78,10 +78,30 @@ func (t *Templates) HandleBasicList(w http.ResponseWriter, r *http.Request) {
 		Data: templatesList,
 	}
 
+	ctxUserId := r.Context().Value(CONTEXT_USER_ID_KEY).(int)
+
+	if ctxUserId == 0 {
+		response.Resource.Ok = false
+		response.Resource.Error = "reference to user not found in context"
+
+		WriteErrorResponse(w, response, "/templates", response.Resource.Error, http.StatusInternalServerError)
+
+		return
+	}
+
+	templatesListContent, templatesErr := t.model.BasicList(ctxUserId)
+
 	if templatesErr != nil {
 		response.Resource.Ok = false
 		response.Resource.Error = templatesErr.Error()
+
+		WriteErrorResponse(w, response, "/templates", "error on template fetch", http.StatusInternalServerError)
+
+		return
 	}
+
+	templatesList = templatesListContent
+	response.Data = templatesList
 
 	jsonResp, jsonErr := json.Marshal(response)
 	if jsonErr != nil {
@@ -101,17 +121,28 @@ func (t *Templates) HandleBasicList(w http.ResponseWriter, r *http.Request) {
 func (t *Templates) HandleList(w http.ResponseWriter, r *http.Request) {
 	SetJsonContentType(w)
 
-	templateId := r.URL.Query().Get("template_id")
-	includeContent := r.URL.Query().Get("include_content")
-
-	templateList, templateErr := t.model.List(templateId, includeContent == "1")
-
 	response := HandleTemplateListResponse{
 		Resource: ResponseHeader{
 			Ok: true,
 		},
-		Data: templateList,
+		Data: []model.TemplatesList{},
 	}
+
+	ctxUserId := r.Context().Value(CONTEXT_USER_ID_KEY).(int)
+
+	if ctxUserId == 0 {
+		response.Resource.Ok = false
+		response.Resource.Error = "reference to user not found in context"
+
+		WriteErrorResponse(w, response, "/templates", response.Resource.Error, http.StatusInternalServerError)
+
+		return
+	}
+
+	templateId := r.URL.Query().Get("template_id")
+	includeContent := r.URL.Query().Get("include_content")
+
+	templateList, templateErr := t.model.List(templateId, includeContent == "1", ctxUserId)
 
 	if templateErr != nil {
 		response.Resource.Ok = false
@@ -121,6 +152,8 @@ func (t *Templates) HandleList(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
+
+	response.Data = templateList
 
 	WriteSuccessResponse(w, response)
 }
@@ -133,6 +166,17 @@ func (t *Templates) HandleCreate(w http.ResponseWriter, r *http.Request) {
 			Ok: true,
 		},
 		Data: CreateTemplateCreateDataResponse{},
+	}
+
+	ctxUserId := r.Context().Value(CONTEXT_USER_ID_KEY).(int)
+
+	if ctxUserId == 0 {
+		response.Resource.Ok = false
+		response.Resource.Error = "reference to user not found in context"
+
+		WriteErrorResponse(w, response, "/templates", response.Resource.Error, http.StatusInternalServerError)
+
+		return
 	}
 
 	bodyContent, bodyErr := io.ReadAll(r.Body)
@@ -180,7 +224,7 @@ func (t *Templates) HandleCreate(w http.ResponseWriter, r *http.Request) {
 		TemplateName:      template.TemplateName,
 		TemplateContent:   template.TemplateContent,
 		TemplateUrlImport: template.TemplateUrlImport,
-		UserId:            1,
+		UserId:            ctxUserId,
 	})
 
 	if creationErr != nil {
@@ -205,6 +249,17 @@ func (t *Templates) HandleUpdate(w http.ResponseWriter, r *http.Request) {
 			Ok: true,
 		},
 		Data: UpdateTemplateDataResponse{},
+	}
+
+	ctxUserId := r.Context().Value(CONTEXT_USER_ID_KEY).(int)
+
+	if ctxUserId == 0 {
+		response.Resource.Ok = false
+		response.Resource.Error = "reference to user not found in context"
+
+		WriteErrorResponse(w, response, "/templates", response.Resource.Error, http.StatusInternalServerError)
+
+		return
 	}
 
 	bodyContent, bodyErr := io.ReadAll(r.Body)
@@ -249,7 +304,7 @@ func (t *Templates) HandleUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	templateById, _ := t.model.ById(template.TemplateId)
+	templateById, _ := t.model.ById(template.TemplateId, ctxUserId)
 
 	if templateById.TemplateId == 0 {
 		response.Resource.Ok = false
@@ -265,7 +320,7 @@ func (t *Templates) HandleUpdate(w http.ResponseWriter, r *http.Request) {
 		TemplateName:      template.TemplateName,
 		TemplateContent:   template.TemplateContent,
 		TemplateUrlImport: template.TemplateUrlImport,
-	})
+	}, ctxUserId)
 
 	if updateErr != nil {
 		response.Resource.Ok = false
@@ -289,6 +344,17 @@ func (t *Templates) HandleDelete(w http.ResponseWriter, r *http.Request) {
 			Ok: true,
 		},
 		Data: UpdateTemplateDataResponse{},
+	}
+
+	ctxUserId := r.Context().Value(CONTEXT_USER_ID_KEY).(int)
+
+	if ctxUserId == 0 {
+		response.Resource.Ok = false
+		response.Resource.Error = "reference to user not found in context"
+
+		WriteErrorResponse(w, response, "/templates", response.Resource.Error, http.StatusInternalServerError)
+
+		return
 	}
 
 	bodyContent, bodyErr := io.ReadAll(r.Body)
@@ -326,7 +392,7 @@ func (t *Templates) HandleDelete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	templateById, _ := t.model.ById(template.TemplateId)
+	templateById, _ := t.model.ById(template.TemplateId, ctxUserId)
 
 	if templateById.TemplateId == 0 {
 		response.Resource.Ok = false
@@ -337,7 +403,7 @@ func (t *Templates) HandleDelete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rowsAffected, updateErr := t.model.Delete(template.TemplateId)
+	rowsAffected, updateErr := t.model.Delete(template.TemplateId, ctxUserId)
 
 	if updateErr != nil {
 		response.Resource.Ok = false

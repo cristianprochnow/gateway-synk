@@ -50,7 +50,7 @@ func NewIntProfiles(db *sql.DB) *IntProfiles {
 	return &intProfiles
 }
 
-func (ip *IntProfiles) BasicList() ([]IntProfilesBasicList, error) {
+func (ip *IntProfiles) BasicList(userId int) ([]IntProfilesBasicList, error) {
 	var intProfiles []IntProfilesBasicList
 
 	rows, rowsErr := ip.db.Query(
@@ -58,7 +58,8 @@ func (ip *IntProfiles) BasicList() ([]IntProfilesBasicList, error) {
             color.color_hex, color.color_name
         FROM integration_profile profile
         LEFT JOIN color ON color.color_id = profile.color_id
-        ORDER BY profile.int_profile_name`,
+        WHERE profile.deleted_at IS NULL AND profile.user_id = ?
+        ORDER BY profile.int_profile_name`, userId,
 	)
 
 	if rowsErr != nil {
@@ -94,13 +95,14 @@ func (ip *IntProfiles) BasicList() ([]IntProfilesBasicList, error) {
 	return intProfiles, nil
 }
 
-func (ip *IntProfiles) ById(intProfileId int) (IntProfilesByIdData, error) {
+func (ip *IntProfiles) ById(intProfileId int, userId int) (IntProfilesByIdData, error) {
 	var intProfile IntProfilesByIdData
 
 	rows, rowsErr := ip.db.Query(
 		`SELECT int_profile_id
         FROM integration_profile
-        WHERE int_profile_id = ?`, intProfileId,
+        WHERE deleted_at IS NULL AND user_id = ? AND int_profile_id = ?`,
+		userId, intProfileId,
 	)
 
 	if rowsErr != nil {
@@ -128,11 +130,14 @@ func (ip *IntProfiles) ById(intProfileId int) (IntProfilesByIdData, error) {
 	return intProfile, nil
 }
 
-func (ip *IntProfiles) List(id string) ([]IntProfileList, error) {
+func (ip *IntProfiles) List(id string, userId int) ([]IntProfileList, error) {
 	var intProfiles []IntProfileList
 
 	whereList := []string{}
 	whereValues := []any{}
+
+	whereList = append(whereList, "profile.user_id = ?")
+	whereValues = append(whereValues, userId)
 
 	if id != "" {
 		whereList = append(whereList, "profile.int_profile_id = ?")
@@ -189,14 +194,14 @@ func (ip *IntProfiles) List(id string) ([]IntProfileList, error) {
 	return intProfiles, nil
 }
 
-func (ip *IntProfiles) Add(intProfile IntProfileAddData, intCredentials []int) (int, error) {
+func (ip *IntProfiles) Add(intProfile IntProfileAddData, intCredentials []int, userId int) (int, error) {
 	var intProfileId int
 
 	insertRes, insertErr := ip.db.ExecContext(
 		context.Background(),
-		`INSERT INTO synk.integration_profile (int_profile_name, color_id)
-        VALUES (?, ?)`,
-		intProfile.IntProfileName, intProfile.ColorId,
+		`INSERT INTO synk.integration_profile (int_profile_name, color_id, user_id)
+        VALUES (?, ?, ?)`,
+		intProfile.IntProfileName, intProfile.ColorId, userId,
 	)
 
 	if insertErr != nil {
@@ -223,7 +228,7 @@ func (ip *IntProfiles) Add(intProfile IntProfileAddData, intCredentials []int) (
 	return intProfileId, nil
 }
 
-func (ip *IntProfiles) Update(intProfile IntProfileUpdateData, intCredentials []int) (int, error) {
+func (ip *IntProfiles) Update(intProfile IntProfileUpdateData, intCredentials []int, userId int) (int, error) {
 	var rowsAffected int64
 
 	updateRes, updateErr := ip.db.ExecContext(
@@ -232,8 +237,8 @@ func (ip *IntProfiles) Update(intProfile IntProfileUpdateData, intCredentials []
         SET int_profile_name = ?,
             color_id = ?,
             updated_at = CURRENT_TIMESTAMP
-        WHERE int_profile_id = ? AND deleted_at IS NULL`,
-		intProfile.IntProfileName, intProfile.ColorId, intProfile.IntProfileId,
+        WHERE deleted_at IS NULL AND user_id = ? AND int_profile_id = ?`,
+		intProfile.IntProfileName, intProfile.ColorId, userId, intProfile.IntProfileId,
 	)
 
 	if updateErr != nil {
@@ -265,14 +270,15 @@ func (ip *IntProfiles) Update(intProfile IntProfileUpdateData, intCredentials []
 	return int(rowsAffected), nil
 }
 
-func (ip *IntProfiles) Delete(intProfileId int) (int, error) {
+func (ip *IntProfiles) Delete(intProfileId int, userId int) (int, error) {
 	var rowsAffected int64
 
 	insertRes, insertErr := ip.db.ExecContext(
 		context.Background(),
 		`UPDATE integration_profile
         SET deleted_at = CURRENT_TIMESTAMP
-        WHERE int_profile_id = ?`, intProfileId,
+        WHERE deleted_at IS NULL AND user_id = ? AND int_profile_id = ?`,
+		userId, intProfileId,
 	)
 
 	if insertErr != nil {

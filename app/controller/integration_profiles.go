@@ -75,19 +75,32 @@ func NewIntProfiles(db *sql.DB) *IntProfiles {
 func (ip *IntProfiles) HandleBasicList(w http.ResponseWriter, r *http.Request) {
 	SetJsonContentType(w)
 
-	intProfilesList, intProfilesErr := ip.model.BasicList()
-
 	response := HandleIntProfilesBasicListResponse{
 		Resource: ResponseHeader{
 			Ok: true,
 		},
-		Data: intProfilesList,
+		Data: []model.IntProfilesBasicList{},
 	}
+
+	ctxUserId := r.Context().Value(CONTEXT_USER_ID_KEY).(int)
+
+	if ctxUserId == 0 {
+		response.Resource.Ok = false
+		response.Resource.Error = "reference to user not found in context"
+
+		WriteErrorResponse(w, response, "/int_profiles/basic", response.Resource.Error, http.StatusInternalServerError)
+
+		return
+	}
+
+	intProfilesList, intProfilesErr := ip.model.BasicList(ctxUserId)
 
 	if intProfilesErr != nil {
 		response.Resource.Ok = false
 		response.Resource.Error = intProfilesErr.Error()
 	}
+
+	response.Data = intProfilesList
 
 	jsonResp, jsonErr := json.Marshal(response)
 	if jsonErr != nil {
@@ -107,26 +120,39 @@ func (ip *IntProfiles) HandleBasicList(w http.ResponseWriter, r *http.Request) {
 func (ip *IntProfiles) HandleList(w http.ResponseWriter, r *http.Request) {
 	SetJsonContentType(w)
 
+	response := HandleIntProfileListResponse{
+		Resource: ResponseHeader{
+			Ok: true,
+		},
+		Data: []model.IntProfileList{},
+	}
+
+	ctxUserId := r.Context().Value(CONTEXT_USER_ID_KEY).(int)
+
+	if ctxUserId == 0 {
+		response.Resource.Ok = false
+		response.Resource.Error = "reference to user not found in context"
+
+		WriteErrorResponse(w, response, "/int_profiles", response.Resource.Error, http.StatusInternalServerError)
+
+		return
+	}
+
 	intProfileId := r.URL.Query().Get("int_profile_id")
 
-	intProfileList, templateErr := ip.model.List(intProfileId)
+	intProfileList, templateErr := ip.model.List(intProfileId, ctxUserId)
 
 	serializeProfileList := []model.IntProfileList{}
 
 	for _, intProfileItem := range intProfileList {
-		itemCredentialsList, _ := ip.IntCredentialModel.BasicListByProfile(intProfileItem.IntProfileId)
+		itemCredentialsList, _ := ip.IntCredentialModel.BasicListByProfile(intProfileItem.IntProfileId, ctxUserId)
 
 		intProfileItem.Credentials = itemCredentialsList
 
 		serializeProfileList = append(serializeProfileList, intProfileItem)
 	}
 
-	response := HandleIntProfileListResponse{
-		Resource: ResponseHeader{
-			Ok: true,
-		},
-		Data: serializeProfileList,
-	}
+	response.Data = serializeProfileList
 
 	if templateErr != nil {
 		response.Resource.Ok = false
@@ -148,6 +174,17 @@ func (ip *IntProfiles) HandleCreate(w http.ResponseWriter, r *http.Request) {
 			Ok: true,
 		},
 		Data: CreateIntProfileCreateDataResponse{},
+	}
+
+	ctxUserId := r.Context().Value(CONTEXT_USER_ID_KEY).(int)
+
+	if ctxUserId == 0 {
+		response.Resource.Ok = false
+		response.Resource.Error = "reference to user not found in context"
+
+		WriteErrorResponse(w, response, "/int_profiles", response.Resource.Error, http.StatusInternalServerError)
+
+		return
 	}
 
 	bodyContent, bodyErr := io.ReadAll(r.Body)
@@ -203,7 +240,7 @@ func (ip *IntProfiles) HandleCreate(w http.ResponseWriter, r *http.Request) {
 	allCredentialsExists := true
 
 	for _, credentialId := range intProfile.CredentialsList {
-		credentialSearchResult, credentialSearchError := ip.IntCredentialModel.List(strconv.Itoa(credentialId), false)
+		credentialSearchResult, credentialSearchError := ip.IntCredentialModel.List(strconv.Itoa(credentialId), false, ctxUserId)
 
 		if credentialSearchError != nil || len(credentialSearchResult) == 0 {
 			allCredentialsExists = false
@@ -224,7 +261,7 @@ func (ip *IntProfiles) HandleCreate(w http.ResponseWriter, r *http.Request) {
 	creationId, creationErr := ip.model.Add(model.IntProfileAddData{
 		IntProfileName: intProfile.IntProfileName,
 		ColorId:        intProfile.ColorId,
-	}, intProfile.CredentialsList)
+	}, intProfile.CredentialsList, ctxUserId)
 
 	if creationErr != nil {
 		response.Resource.Ok = false
@@ -248,6 +285,17 @@ func (ip *IntProfiles) HandleUpdate(w http.ResponseWriter, r *http.Request) {
 			Ok: true,
 		},
 		Data: UpdateIntProfileDataResponse{},
+	}
+
+	ctxUserId := r.Context().Value(CONTEXT_USER_ID_KEY).(int)
+
+	if ctxUserId == 0 {
+		response.Resource.Ok = false
+		response.Resource.Error = "reference to user not found in context"
+
+		WriteErrorResponse(w, response, "/int_profiles", response.Resource.Error, http.StatusInternalServerError)
+
+		return
 	}
 
 	bodyContent, bodyErr := io.ReadAll(r.Body)
@@ -301,7 +349,7 @@ func (ip *IntProfiles) HandleUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	intProfileById, _ := ip.model.ById(intProfile.IntProfileId)
+	intProfileById, _ := ip.model.ById(intProfile.IntProfileId, ctxUserId)
 
 	if intProfileById.IntProfileId == 0 {
 		response.Resource.Ok = false
@@ -315,7 +363,7 @@ func (ip *IntProfiles) HandleUpdate(w http.ResponseWriter, r *http.Request) {
 	allCredentialsExists := true
 
 	for _, credentialId := range intProfile.CredentialsList {
-		credentialSearchResult, credentialSearchError := ip.IntCredentialModel.List(strconv.Itoa(credentialId), false)
+		credentialSearchResult, credentialSearchError := ip.IntCredentialModel.List(strconv.Itoa(credentialId), false, ctxUserId)
 
 		if credentialSearchError != nil || len(credentialSearchResult) == 0 {
 			allCredentialsExists = false
@@ -337,7 +385,7 @@ func (ip *IntProfiles) HandleUpdate(w http.ResponseWriter, r *http.Request) {
 		IntProfileId:   intProfile.IntProfileId,
 		IntProfileName: intProfile.IntProfileName,
 		ColorId:        intProfile.ColorId,
-	}, intProfile.CredentialsList)
+	}, intProfile.CredentialsList, ctxUserId)
 
 	if updateErr != nil {
 		response.Resource.Ok = false
@@ -361,6 +409,17 @@ func (ip *IntProfiles) HandleDelete(w http.ResponseWriter, r *http.Request) {
 			Ok: true,
 		},
 		Data: UpdateIntProfileDataResponse{},
+	}
+
+	ctxUserId := r.Context().Value(CONTEXT_USER_ID_KEY).(int)
+
+	if ctxUserId == 0 {
+		response.Resource.Ok = false
+		response.Resource.Error = "reference to user not found in context"
+
+		WriteErrorResponse(w, response, "/int_profiles", response.Resource.Error, http.StatusInternalServerError)
+
+		return
 	}
 
 	bodyContent, bodyErr := io.ReadAll(r.Body)
@@ -398,7 +457,7 @@ func (ip *IntProfiles) HandleDelete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	intProfileById, _ := ip.model.ById(intProfile.IntProfileId)
+	intProfileById, _ := ip.model.ById(intProfile.IntProfileId, ctxUserId)
 
 	if intProfileById.IntProfileId == 0 {
 		response.Resource.Ok = false
@@ -409,7 +468,7 @@ func (ip *IntProfiles) HandleDelete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rowsAffected, updateErr := ip.model.Delete(intProfile.IntProfileId)
+	rowsAffected, updateErr := ip.model.Delete(intProfile.IntProfileId, ctxUserId)
 
 	if updateErr != nil {
 		response.Resource.Ok = false
