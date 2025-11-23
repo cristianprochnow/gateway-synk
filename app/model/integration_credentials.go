@@ -62,15 +62,15 @@ func NewIntCredentials(db *sql.DB) *IntCredentials {
 	return &intCredentials
 }
 
-func (ic *IntCredentials) BasicList() ([]IntCredentialsBasicList, error) {
+func (ic *IntCredentials) BasicList(userId int) ([]IntCredentialsBasicList, error) {
 	var intCredentials []IntCredentialsBasicList
 
 	rows, rowsErr := ic.db.Query(
 		`SELECT credential.int_credential_id, credential.int_credential_name,
             credential.int_credential_type
         FROM integration_credential credential
-        WHERE credential.deleted_at IS NULL
-        ORDER BY credential.int_credential_name`,
+        WHERE credential.deleted_at IS NULL AND credential.user_id = ?
+        ORDER BY credential.int_credential_name`, userId,
 	)
 
 	if rowsErr != nil {
@@ -105,7 +105,7 @@ func (ic *IntCredentials) BasicList() ([]IntCredentialsBasicList, error) {
 	return intCredentials, nil
 }
 
-func (ic *IntCredentials) BasicListByProfile(profileId int) ([]IntCredentialsBasicList, error) {
+func (ic *IntCredentials) BasicListByProfile(profileId int, userId int) ([]IntCredentialsBasicList, error) {
 	var intCredentials []IntCredentialsBasicList
 
 	rows, rowsErr := ic.db.Query(
@@ -113,8 +113,10 @@ func (ic *IntCredentials) BasicListByProfile(profileId int) ([]IntCredentialsBas
         FROM integration_group int_group
         LEFT JOIN integration_credential credential ON credential.int_credential_id = int_group.int_credential_id
             AND credential.deleted_at IS NULL
-        WHERE int_group.int_profile_id = ?
-        ORDER BY credential.int_credential_type, credential.int_credential_name`, profileId,
+        WHERE credential.deleted_at IS NULL AND
+            credential.user_id = ? AND
+            int_group.int_profile_id = ?
+        ORDER BY credential.int_credential_type, credential.int_credential_name`, userId, profileId,
 	)
 
 	if rowsErr != nil {
@@ -148,12 +150,15 @@ func (ic *IntCredentials) BasicListByProfile(profileId int) ([]IntCredentialsBas
 	return intCredentials, nil
 }
 
-func (ic *IntCredentials) List(id string, includeConfig bool) ([]IntCredentialList, error) {
+func (ic *IntCredentials) List(id string, includeConfig bool, userId int) ([]IntCredentialList, error) {
 	var intCredentials []IntCredentialList
 
 	whereList := []string{}
 	whereValues := []any{}
 	columnsList := []string{}
+
+	whereList = append(whereList, "user_id = ?")
+	whereValues = append(whereValues, userId)
 
 	if id != "" {
 		whereList = append(whereList, "int_credential_id = ?")
@@ -219,7 +224,7 @@ func (ic *IntCredentials) List(id string, includeConfig bool) ([]IntCredentialLi
 	return intCredentials, nil
 }
 
-func (ic *IntCredentials) Add(intCredential IntCredentialAddData) (int, error) {
+func (ic *IntCredentials) Add(intCredential IntCredentialAddData, userId int) (int, error) {
 	var intCredentialId int
 
 	insertRes, insertErr := ic.db.ExecContext(
@@ -227,12 +232,14 @@ func (ic *IntCredentials) Add(intCredential IntCredentialAddData) (int, error) {
 		`INSERT INTO synk.integration_credential (
             int_credential_name,
             int_credential_type,
-            int_credential_config
+            int_credential_config,
+            user_id
         )
-        VALUES (?, ?, ?)`,
+        VALUES (?, ?, ?, ?)`,
 		intCredential.IntCredentialName,
 		intCredential.IntCredentialType,
 		intCredential.IntCredentialConfig,
+		userId,
 	)
 
 	if insertErr != nil {
@@ -250,7 +257,7 @@ func (ic *IntCredentials) Add(intCredential IntCredentialAddData) (int, error) {
 	return intCredentialId, nil
 }
 
-func (ic *IntCredentials) Update(intCredential IntCredentialUpdateData) (int, error) {
+func (ic *IntCredentials) Update(intCredential IntCredentialUpdateData, userId int) (int, error) {
 	var rowsAffected int64
 
 	updateRes, updateErr := ic.db.ExecContext(
@@ -261,11 +268,12 @@ func (ic *IntCredentials) Update(intCredential IntCredentialUpdateData) (int, er
             int_credential_type = ?,
             int_credential_config = ?,
             updated_at = CURRENT_TIMESTAMP
-        WHERE int_credential_id = ? AND deleted_at IS NULL`,
+        WHERE deleted_at IS NULL AND user_id = ? AND int_credential_id = ?`,
 		intCredential.IntCredentialId,
 		intCredential.IntCredentialName,
 		intCredential.IntCredentialType,
 		intCredential.IntCredentialConfig,
+		userId,
 		intCredential.IntCredentialId,
 	)
 
@@ -284,14 +292,15 @@ func (ic *IntCredentials) Update(intCredential IntCredentialUpdateData) (int, er
 	return int(rowsAffected), nil
 }
 
-func (ic *IntCredentials) Delete(intCredentialId int) (int, error) {
+func (ic *IntCredentials) Delete(intCredentialId int, userId int) (int, error) {
 	var rowsAffected int64
 
 	insertRes, insertErr := ic.db.ExecContext(
 		context.Background(),
 		`UPDATE integration_credential
         SET deleted_at = CURRENT_TIMESTAMP
-        WHERE int_credential_id = ?`, intCredentialId,
+        WHERE deleted_at IS NULL AND user_id = ? AND int_credential_id = ?`,
+		userId, intCredentialId,
 	)
 
 	if insertErr != nil {
