@@ -57,6 +57,21 @@ CREATE TABLE `color` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+insert into
+  `color` (`color_hex`, `color_id`, `color_name`)
+values
+  ('FFC107', 3, 'Warning Yellow');
+
+insert into
+  `color` (`color_hex`, `color_id`, `color_name`)
+values
+  ('28A745', 2, 'Success Green');
+
+insert into
+  `color` (`color_hex`, `color_id`, `color_name`)
+values
+  ('007BFF', 1, 'Primary Blue');
+
 --
 -- Table structure for table `integration_credential`
 --
