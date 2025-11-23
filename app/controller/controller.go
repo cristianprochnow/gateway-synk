@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/json"
@@ -20,8 +21,13 @@ type Response struct {
 	List  []any  `json:"list"`
 }
 
+type UserAuthDataResponse struct {
+	UserId int `json:"user_id"`
+}
+
 type HandleAuthResponse struct {
-	Resource ResponseHeader `json:"resource"`
+	Resource ResponseHeader       `json:"resource"`
+	Data     UserAuthDataResponse `json:"user"`
 }
 
 type ResponseHeader struct {
@@ -29,7 +35,10 @@ type ResponseHeader struct {
 	Error string `json:"error"`
 }
 
+type ContextKey string
+
 const AUTH_TIMEOUT = time.Second * 5
+const CONTEXT_USER_ID_KEY ContextKey = "user_id"
 
 func WriteErrorResponse(w http.ResponseWriter, response any, route string, message string, status int) {
 	util.LogRoute(route, message)
@@ -153,41 +162,40 @@ func Cors(next http.Handler) http.Handler {
 		}
 		defer authResp.Body.Close()
 
-		if authResp.StatusCode != http.StatusOK {
-			var authCheckResponse HandleAuthResponse
+		var authCheckResponse HandleAuthResponse
 
-			bodyBytes, readErr := io.ReadAll(authResp.Body)
+		bodyBytes, readErr := io.ReadAll(authResp.Body)
 
-			if readErr != nil {
-				response.Resource.Ok = false
-				response.Resource.Error = "error while parsing auth server response"
+		if readErr != nil {
+			response.Resource.Ok = false
+			response.Resource.Error = "error while parsing auth server response"
 
-				WriteErrorResponse(w, response, "/", response.Resource.Error, http.StatusInternalServerError)
-
-				return
-			}
-
-			if err := json.Unmarshal(bodyBytes, &authCheckResponse); err != nil {
-				response.Resource.Ok = false
-				response.Resource.Error = "error while decoding auth server response"
-
-				WriteErrorResponse(w, response, "/", response.Resource.Error, http.StatusInternalServerError)
-
-				return
-			}
-
-			if !authCheckResponse.Resource.Ok {
-				response.Resource.Ok = false
-				response.Resource.Error = authCheckResponse.Resource.Error
-
-				WriteErrorResponse(w, response, "/", response.Resource.Error, authResp.StatusCode)
-
-				return
-			}
+			WriteErrorResponse(w, response, "/", response.Resource.Error, http.StatusInternalServerError)
 
 			return
 		}
 
-		next.ServeHTTP(w, r)
+		if err := json.Unmarshal(bodyBytes, &authCheckResponse); err != nil {
+			response.Resource.Ok = false
+			response.Resource.Error = "error while decoding auth server response"
+
+			WriteErrorResponse(w, response, "/", response.Resource.Error, http.StatusInternalServerError)
+
+			return
+		}
+
+		if authResp.StatusCode != http.StatusOK && !authCheckResponse.Resource.Ok {
+			response.Resource.Ok = false
+			response.Resource.Error = authCheckResponse.Resource.Error
+
+			WriteErrorResponse(w, response, "/", response.Resource.Error, authResp.StatusCode)
+
+			return
+		}
+
+		ctx := r.Context()
+		ctx = context.WithValue(ctx, CONTEXT_USER_ID_KEY, authCheckResponse.Data.UserId)
+
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
