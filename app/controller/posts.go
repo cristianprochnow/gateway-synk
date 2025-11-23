@@ -105,6 +105,17 @@ func (p *Posts) HandleCreate(w http.ResponseWriter, r *http.Request) {
 		Data: CreatePostCreateDataResponse{},
 	}
 
+	ctxUserId := r.Context().Value(CONTEXT_USER_ID_KEY).(int)
+
+	if ctxUserId == 0 {
+		response.Resource.Ok = false
+		response.Resource.Error = "reference to user not found in context"
+
+		WriteErrorResponse(w, response, "/posts", response.Resource.Error, http.StatusInternalServerError)
+
+		return
+	}
+
 	bodyContent, bodyErr := io.ReadAll(r.Body)
 
 	if bodyErr != nil {
@@ -146,7 +157,7 @@ func (p *Posts) HandleCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	templateById, _ := p.templateModel.ById(post.TemplateId)
+	templateById, _ := p.templateModel.ById(post.TemplateId, ctxUserId)
 
 	if templateById.TemplateId == 0 {
 		response.Resource.Ok = false
@@ -197,6 +208,17 @@ func (p *Posts) HandleUpdate(w http.ResponseWriter, r *http.Request) {
 			Ok: true,
 		},
 		Data: UpdatePostDataResponse{},
+	}
+
+	ctxUserId := r.Context().Value(CONTEXT_USER_ID_KEY).(int)
+
+	if ctxUserId == 0 {
+		response.Resource.Ok = false
+		response.Resource.Error = "reference to user not found in context"
+
+		WriteErrorResponse(w, response, "/posts", response.Resource.Error, http.StatusInternalServerError)
+
+		return
 	}
 
 	bodyContent, bodyErr := io.ReadAll(r.Body)
@@ -252,7 +274,7 @@ func (p *Posts) HandleUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	templateById, _ := p.templateModel.ById(post.TemplateId)
+	templateById, _ := p.templateModel.ById(post.TemplateId, ctxUserId)
 
 	if templateById.TemplateId == 0 {
 		response.Resource.Ok = false
