@@ -547,7 +547,7 @@ collection:
           text: |-
             {
             	"int_credential_name": "Linkedinho",
-            	"int_credential_type": "instagram",
+            	"int_credential_type": "linkedin",
             	"int_credential_config": "{}"
             }
         headers:
@@ -608,7 +608,7 @@ collection:
             {
             	"int_credential_id": 3,
             	"int_credential_name": "Linkedinho",
-            	"int_credential_type": "instagram",
+            	"int_credential_type": "linkedin",
             	"int_credential_config": "{}"
             }
         headers:

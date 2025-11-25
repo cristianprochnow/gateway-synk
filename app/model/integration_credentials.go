@@ -11,14 +11,13 @@ import (
 type SocialPlatform string
 
 const (
-	Twitter   SocialPlatform = "twitter"
-	LinkedIn  SocialPlatform = "linkedin"
-	Instagram SocialPlatform = "instagram"
+	Twitter  SocialPlatform = "twitter"
+	LinkedIn SocialPlatform = "linkedin"
 )
 
 func (sp SocialPlatform) IsValid() bool {
 	switch sp {
-	case Twitter, LinkedIn, Instagram:
+	case Twitter, LinkedIn:
 		return true
 	default:
 		return false
