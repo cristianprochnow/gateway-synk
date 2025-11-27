@@ -59,7 +59,7 @@ func SetJsonContentType(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json")
 }
 
-func newAuthServiceClient() *http.Client {
+func NewServiceClient() *http.Client {
 	caCert, caErr := os.ReadFile("/cert/rootCA.pem")
 	if caErr != nil {
 		util.LogRoute("/", "error reading root CA file: "+caErr.Error())
@@ -84,7 +84,7 @@ func newAuthServiceClient() *http.Client {
 	return client
 }
 
-var authClient = newAuthServiceClient()
+var authClient = NewServiceClient()
 
 func Cors(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
