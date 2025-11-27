@@ -5,7 +5,6 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -152,7 +151,6 @@ func Cors(next http.Handler) http.Handler {
 
 		authResp, authRespErr := authClient.Do(authReq)
 		if authRespErr != nil {
-			fmt.Println(authRespErr.Error())
 			response.Resource.Ok = false
 			response.Resource.Error = "error while contacting auth server"
 
