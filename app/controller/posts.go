@@ -1,10 +1,12 @@
 package controller
 
 import (
+	"bytes"
 	"database/sql"
 	"encoding/json"
 	"io"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"synk/gateway/app/model"
@@ -48,6 +50,10 @@ type HandlePostCreateResponse struct {
 type HandlePostUpdateResponse struct {
 	Resource ResponseHeader         `json:"resource"`
 	Data     UpdatePostDataResponse `json:"post"`
+}
+
+type HandlePostPublishResponse struct {
+	Resource ResponseHeader `json:"resource"`
 }
 
 type CreatePostCreateDataResponse struct {
@@ -410,6 +416,151 @@ func (p *Posts) HandleDelete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response.Data.RowsAffected = rowsAffected
+
+	WriteSuccessResponse(w, response)
+}
+
+func (p *Posts) HandlePublish(w http.ResponseWriter, r *http.Request) {
+	SetJsonContentType(w)
+
+	response := HandlePostPublishResponse{
+		Resource: ResponseHeader{
+			Ok: true,
+		},
+	}
+
+	ctxUserId := r.Context().Value(CONTEXT_USER_ID_KEY).(int)
+
+	if ctxUserId == 0 {
+		response.Resource.Ok = false
+		response.Resource.Error = "reference to user not found in context"
+
+		WriteErrorResponse(w, response, "/posts", response.Resource.Error, http.StatusInternalServerError)
+
+		return
+	}
+
+	bodyContent, bodyErr := io.ReadAll(r.Body)
+
+	if bodyErr != nil {
+		response.Resource.Ok = false
+		response.Resource.Error = "error on read delete body"
+
+		WriteErrorResponse(w, response, "/posts", response.Resource.Error, http.StatusBadRequest)
+
+		return
+	}
+
+	var post HandlePostDeleteRequest
+
+	jsonErr := json.Unmarshal(bodyContent, &post)
+
+	if jsonErr != nil {
+		response.Resource.Ok = false
+		response.Resource.Error = "some fields can be in invalid format"
+
+		WriteErrorResponse(w, response, "/posts", response.Resource.Error, http.StatusBadRequest)
+
+		return
+	}
+
+	hasAllData := post.PostId != 0
+
+	if !hasAllData {
+		response.Resource.Ok = false
+		response.Resource.Error = "fields `post_id` is required"
+
+		WriteErrorResponse(w, response, "/posts", response.Resource.Error, http.StatusBadRequest)
+
+		return
+	}
+
+	postById, _ := p.model.ById(post.PostId, ctxUserId)
+
+	if postById.PostId == 0 {
+		response.Resource.Ok = false
+		response.Resource.Error = "post with id " + strconv.Itoa(post.PostId) + " not found"
+
+		WriteErrorResponse(w, response, "/posts", response.Resource.Error, http.StatusBadRequest)
+
+		return
+	}
+
+	queuerClient := NewServiceClient()
+	queuerUrl := strings.TrimSuffix(os.Getenv("QUEUER_ENDPOINT"), "/")
+
+	if queuerUrl == "" {
+		response.Resource.Ok = false
+		response.Resource.Error = "queue url not set at config"
+
+		WriteErrorResponse(w, response, "/posts", response.Resource.Error, http.StatusInternalServerError)
+
+		return
+	}
+
+	jsonPayload, jsonPayloadErr := json.Marshal(map[string]any{
+		"posts": []int{post.PostId},
+	})
+
+	if jsonPayloadErr != nil {
+		response.Resource.Ok = false
+		response.Resource.Error = "error while encoding communication body to queue: " + jsonPayloadErr.Error()
+
+		WriteErrorResponse(w, response, "/posts", response.Resource.Error, http.StatusInternalServerError)
+
+		return
+	}
+
+	publishReq, publishReqErr := http.NewRequest("POST", queuerUrl+"/send", bytes.NewBuffer(jsonPayload))
+
+	if publishReqErr != nil {
+		response.Resource.Ok = false
+		response.Resource.Error = "error while setting communication to queue: " + publishReqErr.Error()
+
+		WriteErrorResponse(w, response, "/posts", response.Resource.Error, http.StatusInternalServerError)
+
+		return
+	}
+
+	publishReq.Header.Set("Accept", "application/json")
+	publishReq.Header.Set("Content-Type", "application/json")
+
+	publishResp, publishRespErr := queuerClient.Do(publishReq)
+
+	if publishRespErr != nil {
+		response.Resource.Ok = false
+		response.Resource.Error = "error while communicating to queue: " + publishRespErr.Error()
+
+		WriteErrorResponse(w, response, "/posts", response.Resource.Error, http.StatusInternalServerError)
+
+		return
+	}
+
+	defer publishResp.Body.Close()
+
+	var publishRespContent HandlePostPublishResponse
+
+	bodyBytes, readErr := io.ReadAll(publishResp.Body)
+
+	if readErr != nil {
+		response.Resource.Ok = false
+		response.Resource.Error = "error while parsing queue server response: " + readErr.Error()
+
+		WriteErrorResponse(w, response, "/posts", response.Resource.Error, http.StatusInternalServerError)
+
+		return
+	}
+
+	if err := json.Unmarshal(bodyBytes, &publishRespContent); err != nil {
+		response.Resource.Ok = false
+		response.Resource.Error = "error while decoding queue server response: " + err.Error()
+
+		WriteErrorResponse(w, response, "/posts", response.Resource.Error, http.StatusInternalServerError)
+
+		return
+	}
+
+	response.Resource = response.Resource
 
 	WriteSuccessResponse(w, response)
 }
