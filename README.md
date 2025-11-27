@@ -183,6 +183,29 @@ post_id=1&include_content=1
 }
 ```
 
+## Publish a Post
+
+> `POST` /post/publish
+
+### Request
+
+```json
+{
+	"post_id": 1
+}
+```
+
+### Response
+
+```json
+{
+	"resource": {
+		"ok": true,
+		"error": ""
+	}
+}
+```
+
 ## Get list of Templates for dropdowns
 
 > `GET` /templates/basic
