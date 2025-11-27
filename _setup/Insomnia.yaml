@@ -1,15 +1,16 @@
 type: collection.insomnia.rest/5.0
+schema_version: "5.1"
 name: Synk
 meta:
-  id: wrk_17322b952bb24e84b4c93de25186bd21
-  created: 1758844512926
-  modified: 1758844512926
+  id: wrk_ffd036cc92c14c0eb11d489688f43e8c
+  created: 1764114136647
+  modified: 1764114136647
   description: ""
 collection:
   - url: "{{base_url}}/about"
     name: about
     meta:
-      id: req_72092cd762aa4636926a511d1b1e3c6a
+      id: req_f040beee951449b38507de24bbfdb2fd
       created: 1758844566254
       modified: 1758844678789
       isPrivate: false
@@ -29,16 +30,16 @@ collection:
       rebuildPath: true
   - name: posts
     meta:
-      id: fld_b7de9c95160645fcae32d24f28cc6296
+      id: fld_31bad8d3f4b1445c959a475bf1483aff
       created: 1758844562640
-      modified: 1762904755846
+      modified: 1764222199204
       sortKey: -1758844562640
       description: ""
     children:
       - url: "{{base_url}}/post"
         name: list
         meta:
-          id: req_0498d745f3c6488ca3adede4788d3e6b
+          id: req_0991e5ee32114890bd278a05ba4a688b
           created: 1758844687004
           modified: 1759809384933
           isPrivate: false
@@ -46,13 +47,11 @@ collection:
           sortKey: -1758844687004
         method: GET
         parameters:
-          - id: pair_f8921a967cae4207b4af1a4ccee19083
-            name: post_id
+          - name: post_id
             value: "1"
             description: ""
             disabled: true
-          - id: pair_abfc3ad035ff41e48255c6b9a1978f1d
-            name: include_content
+          - name: include_content
             value: "1"
             description: ""
             disabled: true
@@ -70,7 +69,7 @@ collection:
       - url: "{{base_url}}/post"
         name: create
         meta:
-          id: req_67178257227444a789d4a5f73b2d1a01
+          id: req_b79747a615394634b8e9f55eb441dec4
           created: 1759529916310
           modified: 1762904734500
           isPrivate: false
@@ -102,7 +101,7 @@ collection:
       - url: "{{base_url}}/post"
         name: update
         meta:
-          id: req_24cbfef2cb084c2aa566a9ac9438f6c6
+          id: req_15cb615aadf54ea8818dc675aae71553
           created: 1759538118982
           modified: 1759539538207
           isPrivate: false
@@ -135,7 +134,7 @@ collection:
       - url: "{{base_url}}/post"
         name: delete
         meta:
-          id: req_37d10973f7634751b46354bf38ac12fa
+          id: req_42f1b765e93f4dfc923ca442f8fcfc44
           created: 1759539459498
           modified: 1759539567647
           isPrivate: false
@@ -161,12 +160,43 @@ collection:
             send: true
             store: true
           rebuildPath: true
+      - url: "{{base_url}}/post/publish"
+        name: publish
+        meta:
+          id: req_bcad541281724fd1aa08a9a218045363
+          created: 1764222107407
+          modified: 1764222228822
+          isPrivate: false
+          description: ""
+          sortKey: -1764222107407
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"post_id": 1
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.1.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
     authentication:
       type: bearer
-      token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJfaWQiOjR9LCJleHAiOjE3NjI5MDQ4NTIsImlhdCI6MTc2MjkwMzk1Mn0.M3KBkZ_GFHjJwJ5lPVpAlvY2bouUswfx14tw1THeNP8
+      token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJfaWQiOjF9LCJleHAiOjE3NjQyMjMwODgsImlhdCI6MTc2NDIyMjE4OH0.JFjIMBlVg-igeNfytrq7ir9M6xMso_LVSC2UK_Zn9s4
   - name: templates
     meta:
-      id: fld_783dea9419484384816e8fb19830b2f0
+      id: fld_716be477168845c7be99633f6b2482d0
       created: 1760051795472
       modified: 1762904714215
       sortKey: -1744550419801
@@ -175,7 +205,7 @@ collection:
       - url: "{{base_url}}/templates/basic"
         name: list for dropdown
         meta:
-          id: req_3d2552704b054b78ad7bf58ddad6f0df
+          id: req_aa651bac3f04421985303ba627cddf08
           created: 1759447954048
           modified: 1760137053208
           isPrivate: false
@@ -196,7 +226,7 @@ collection:
       - url: "{{base_url}}/templates"
         name: list
         meta:
-          id: req_f9a02bfd28a64035816bde9ed435489c
+          id: req_d01f19fc4338475cbdf1da836d79a7f2
           created: 1760051795473
           modified: 1761425806523
           isPrivate: false
@@ -204,13 +234,11 @@ collection:
           sortKey: -1759529916410
         method: GET
         parameters:
-          - id: pair_f8921a967cae4207b4af1a4ccee19083
-            name: template_id
+          - name: template_id
             value: "1"
             description: ""
             disabled: true
-          - id: pair_abfc3ad035ff41e48255c6b9a1978f1d
-            name: include_content
+          - name: include_content
             value: "1"
             description: ""
             disabled: false
@@ -226,40 +254,9 @@ collection:
             store: true
           rebuildPath: true
       - url: "{{base_url}}/templates"
-        name: create
-        meta:
-          id: req_3fb232e5404741fd82c8dcb422234fb3
-          created: 1760051795474
-          modified: 1761447650313
-          isPrivate: false
-          description: ""
-          sortKey: -1759529916510
-        method: POST
-        body:
-          mimeType: application/json
-          text: |-
-            {
-            	"template_name": "template brabo demais",
-            	"template_content": "template brabo demais",
-            	"template_url_import": "template brabo demais"
-            }
-        headers:
-          - name: Content-Type
-            value: application/json
-          - name: User-Agent
-            value: insomnia/11.6.1
-        settings:
-          renderRequestBody: true
-          encodeUrl: true
-          followRedirects: global
-          cookies:
-            send: true
-            store: true
-          rebuildPath: true
-      - url: "{{base_url}}/templates"
         name: update
         meta:
-          id: req_80333e5375144d0db965fd5e60e5d9af
+          id: req_14be06c166a94a46a20ead135d7a3657
           created: 1760051795474
           modified: 1760064919622
           isPrivate: false
@@ -289,9 +286,40 @@ collection:
             store: true
           rebuildPath: true
       - url: "{{base_url}}/templates"
+        name: create
+        meta:
+          id: req_900b2d0dd4654998ba18f4bb01a36405
+          created: 1760051795474
+          modified: 1761447650313
+          isPrivate: false
+          description: ""
+          sortKey: -1759529916510
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"template_name": "template brabo demais",
+            	"template_content": "template brabo demais",
+            	"template_url_import": "template brabo demais"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.1
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{base_url}}/templates"
         name: delete
         meta:
-          id: req_5f87d3935e8c472584159cf3474b8eec
+          id: req_a7b58437a63c48c1b4e3d613cafeebc8
           created: 1760051795475
           modified: 1760066829472
           isPrivate: false
@@ -322,7 +350,7 @@ collection:
       token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJfaWQiOjR9LCJleHAiOjE3NjI5MDQ4NTIsImlhdCI6MTc2MjkwMzk1Mn0.M3KBkZ_GFHjJwJ5lPVpAlvY2bouUswfx14tw1THeNP8
   - name: integration_profiles
     meta:
-      id: fld_a1a9bcfe1a9e47af8d0e2a9aa8aa1e2a
+      id: fld_b5b9805128d34b8dbff35c0fdf9c0b4b
       created: 1760137048704
       modified: 1762904760882
       sortKey: -1737403348381.5
@@ -331,7 +359,7 @@ collection:
       - url: "{{base_url}}/int_profiles/basic"
         name: list for dropdown
         meta:
-          id: req_456b846a6d9346a1abc2151ab79f4050
+          id: req_f69093f265ac4b2697b3f000fa41e6b5
           created: 1759449495172
           modified: 1760137055697
           isPrivate: false
@@ -352,7 +380,7 @@ collection:
       - url: "{{base_url}}/int_profiles"
         name: list
         meta:
-          id: req_31a74f31bdc244f7bc822ec4e6636bf2
+          id: req_2e71c0b168be4b8b8fe94cc911219e87
           created: 1760137048705
           modified: 1760138856021
           isPrivate: false
@@ -360,8 +388,7 @@ collection:
           sortKey: -1759529916410
         method: GET
         parameters:
-          - id: pair_f8921a967cae4207b4af1a4ccee19083
-            name: int_profile_id
+          - name: int_profile_id
             value: "1"
             description: ""
             disabled: true
@@ -379,7 +406,7 @@ collection:
       - url: "{{base_url}}/int_profiles"
         name: create
         meta:
-          id: req_5a42d3063714457e86bd484694eea086
+          id: req_b4e3cb7a61f943f1824d848f77dd2986
           created: 1760137048706
           modified: 1761623491055
           isPrivate: false
@@ -410,7 +437,7 @@ collection:
       - url: "{{base_url}}/int_profiles"
         name: delete
         meta:
-          id: req_04912d9b64cb4a0aa89d08bfd5c1280f
+          id: req_3fb58b12e91d4cb68aea26a10c2f3dc9
           created: 1760137048707
           modified: 1760142117690
           isPrivate: false
@@ -439,7 +466,7 @@ collection:
       - url: "{{base_url}}/int_profiles"
         name: update
         meta:
-          id: req_ee2e5d49bafa4997b0d62a92bdcef1ed
+          id: req_69de0819440547eeae48c592ae9789bd
           created: 1760137048707
           modified: 1761880616542
           isPrivate: false
@@ -473,7 +500,7 @@ collection:
       token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJfaWQiOjR9LCJleHAiOjE3NjI5MDQ4NTIsImlhdCI6MTc2MjkwMzk1Mn0.M3KBkZ_GFHjJwJ5lPVpAlvY2bouUswfx14tw1THeNP8
   - name: integration_credentials
     meta:
-      id: fld_05dd95472403410aa251967192aee429
+      id: fld_14a8534ca8804852b35612cf9fb72459
       created: 1761507118347
       modified: 1762904766762
       sortKey: -1733829812671.75
@@ -482,7 +509,7 @@ collection:
       - url: "{{base_url}}/int_credentials/basic"
         name: list for dropdown
         meta:
-          id: req_e5468e4833244a03bba02aca5dd399ba
+          id: req_1fc6154602cc48a2be9c5e18241a9e6d
           created: 1761507118348
           modified: 1761511056729
           isPrivate: false
@@ -503,7 +530,7 @@ collection:
       - url: "{{base_url}}/int_credentials"
         name: list
         meta:
-          id: req_f462b325f68b4db08a6e11906320d42b
+          id: req_39bc0c12312b4b74a8b27839e6eda005
           created: 1761507118349
           modified: 1761513447381
           isPrivate: false
@@ -511,13 +538,11 @@ collection:
           sortKey: -1759529916410
         method: GET
         parameters:
-          - id: pair_f8921a967cae4207b4af1a4ccee19083
-            name: int_credential_id
+          - name: int_credential_id
             value: "1"
             description: ""
             disabled: false
-          - id: pair_2d9ac8378f004c7f80750b27a940c147
-            name: include_config
+          - name: include_config
             value: "1"
             description: ""
             disabled: false
@@ -533,9 +558,38 @@ collection:
             store: true
           rebuildPath: true
       - url: "{{base_url}}/int_credentials"
+        name: delete
+        meta:
+          id: req_147a457ea77d41128a24c3fa587896ec
+          created: 1761507118350
+          modified: 1761515383316
+          isPrivate: false
+          description: ""
+          sortKey: -1759468444613.5
+        method: DELETE
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"int_credential_id": 5
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.1
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{base_url}}/int_credentials"
         name: create
         meta:
-          id: req_12454fe09b92448c8fc90a3675dc4507
+          id: req_b3dd573eb115459481b377aeb41d9d53
           created: 1761507118350
           modified: 1761880572454
           isPrivate: false
@@ -564,38 +618,9 @@ collection:
             store: true
           rebuildPath: true
       - url: "{{base_url}}/int_credentials"
-        name: delete
-        meta:
-          id: req_b11d6039885b49489ece00ece38b09f0
-          created: 1761507118350
-          modified: 1761515383316
-          isPrivate: false
-          description: ""
-          sortKey: -1759468444613.5
-        method: DELETE
-        body:
-          mimeType: application/json
-          text: |-
-            {
-            	"int_credential_id": 5
-            }
-        headers:
-          - name: Content-Type
-            value: application/json
-          - name: User-Agent
-            value: insomnia/11.6.1
-        settings:
-          renderRequestBody: true
-          encodeUrl: true
-          followRedirects: global
-          cookies:
-            send: true
-            store: true
-          rebuildPath: true
-      - url: "{{base_url}}/int_credentials"
         name: update
         meta:
-          id: req_d2a40ab471024edb882042a7837946e1
+          id: req_2f961591770548c88eac058be704bc76
           created: 1761507118351
           modified: 1761880190773
           isPrivate: false
@@ -629,7 +654,7 @@ collection:
       token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJfaWQiOjR9LCJleHAiOjE3NjI5MDQ4NTIsImlhdCI6MTc2MjkwMzk1Mn0.M3KBkZ_GFHjJwJ5lPVpAlvY2bouUswfx14tw1THeNP8
   - name: auth
     meta:
-      id: fld_ed98952020a1455bbaea26206185ca53
+      id: fld_74deb13e5e1e472580303ce595f7bce8
       created: 1762646232048
       modified: 1762646675914
       sortKey: -1762646232048
@@ -637,35 +662,64 @@ collection:
     children:
       - name: users
         meta:
-          id: fld_23805e95e5f640608a3394845a9186db
+          id: fld_f7e846ae394948be947e4c27411b44a3
           created: 1762648242203
           modified: 1762648242203
           sortKey: -1762648242203
           description: ""
+  - name: publisher
+    meta:
+      id: fld_8ee809d61828451aaefdc4da1b3059fe
+      created: 1764114295799
+      modified: 1764114295799
+      sortKey: -1764114295799
+      description: ""
+    children:
+      - name: discord
+        meta:
+          id: fld_a4ef9d2c6c3e44a2adde1e129768b8da
+          created: 1764116145561
+          modified: 1764116145561
+          sortKey: -1764116145561
+          description: ""
+      - name: telegram
+        meta:
+          id: fld_d17bdc32bf7c492fac6e4e5a3d945bce
+          created: 1764178338529
+          modified: 1764178338529
+          sortKey: -1764178338529
+          description: ""
+  - name: queuer
+    meta:
+      id: fld_92cc4108ea5d41789a403970a43a12bb
+      created: 1764183772081
+      modified: 1764184633749
+      sortKey: -1764183772081
+      description: ""
 cookieJar:
   name: Default Jar
   meta:
-    id: jar_d382f5fd896d4cafe9c9a8b639043d99a4bdf9cf
+    id: jar_17f348be1e3a4e19bd9c186617245742
     created: 1758844512931
-    modified: 1762903952748
+    modified: 1764222187880
   cookies:
-    - key: refresh_token
-      value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJfaWQiOjR9LCJleHAiOjE3NjM1MDg3NTIsImlhdCI6MTc2MjkwMzk1Mn0.iaKmc-pozjSmbZqScJ4NrLNq-OafV3YZdm-PwJySWIw
-      maxAge: 604800
+    - id: 4465927b-0cb8-4dc0-a698-e080320b13c0
+      key: refresh_token
+      value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJfaWQiOjF9LCJleHAiOjE3NjQ4MjY5ODgsImlhdCI6MTc2NDIyMjE4OH0.8dMLSeFZc4ZDZzMZ_4tUha5lQg8is_c0J-W7jcq7d-g
       domain: localhost
       path: /
+      secure: true
       httpOnly: true
       hostOnly: true
-      creation: 2025-11-09T23:29:56.585Z
-      lastAccessed: 2025-11-11T23:32:32.748Z
-      id: 99e89c5d-5fd4-4bcd-aea0-ad4bc71fb9b4
 environments:
   name: Base Environment
   meta:
-    id: env_d382f5fd896d4cafe9c9a8b639043d99a4bdf9cf
+    id: env_6b47fc427beb40e5b81a9c6ea8fe0659
     created: 1758844512928
-    modified: 1762646183942
+    modified: 1764183822432
     isPrivate: false
   data:
-    base_url: http://localhost:8082
-    auth_url: http://localhost:8083
+    base_url: https://localhost:8082
+    auth_url: https://localhost:8083
+    publisher_url: https://localhost:8084
+    queuer_url: https://localhost:8085

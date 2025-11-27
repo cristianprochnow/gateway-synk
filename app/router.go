@@ -19,6 +19,7 @@ func Router(service *Service) {
 	http.HandleFunc("POST /post", postController.HandleCreate)
 	http.HandleFunc("PUT /post", postController.HandleUpdate)
 	http.HandleFunc("DELETE /post", postController.HandleDelete)
+	http.HandleFunc("POST /post/publish", postController.HandlePublish)
 	http.HandleFunc("GET /templates/basic", templateController.HandleBasicList)
 	http.HandleFunc("GET /templates", templateController.HandleList)
 	http.HandleFunc("POST /templates", templateController.HandleCreate)

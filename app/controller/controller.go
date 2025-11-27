@@ -5,13 +5,14 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"strings"
 	"synk/gateway/app/util"
 	"time"
+
+	"github.com/getsentry/sentry-go"
 )
 
 type Response struct {
@@ -38,10 +39,15 @@ type ResponseHeader struct {
 type ContextKey string
 
 const AUTH_TIMEOUT = time.Second * 5
+const SENTRY_LOG_TIMEOUT = time.Second * 5
 const CONTEXT_USER_ID_KEY ContextKey = "user_id"
 
 func WriteErrorResponse(w http.ResponseWriter, response any, route string, message string, status int) {
+	defer sentry.Flush(SENTRY_LOG_TIMEOUT)
+
 	util.LogRoute(route, message)
+
+	sentry.CaptureMessage("error(@gateway" + route + "): " + message)
 
 	jsonResp, _ := json.Marshal(response)
 
@@ -50,7 +56,11 @@ func WriteErrorResponse(w http.ResponseWriter, response any, route string, messa
 }
 
 func WriteSuccessResponse(w http.ResponseWriter, response any) {
+	defer sentry.Flush(SENTRY_LOG_TIMEOUT)
+
 	jsonResp, _ := json.Marshal(response)
+
+	sentry.CaptureMessage("success(@gateway): " + string(jsonResp))
 
 	w.WriteHeader(http.StatusOK)
 	w.Write(jsonResp)
@@ -60,7 +70,7 @@ func SetJsonContentType(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json")
 }
 
-func newAuthServiceClient() *http.Client {
+func NewServiceClient() *http.Client {
 	caCert, caErr := os.ReadFile("/cert/rootCA.pem")
 	if caErr != nil {
 		util.LogRoute("/", "error reading root CA file: "+caErr.Error())
@@ -85,7 +95,7 @@ func newAuthServiceClient() *http.Client {
 	return client
 }
 
-var authClient = newAuthServiceClient()
+var authClient = NewServiceClient()
 
 func Cors(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -152,7 +162,6 @@ func Cors(next http.Handler) http.Handler {
 
 		authResp, authRespErr := authClient.Do(authReq)
 		if authRespErr != nil {
-			fmt.Println(authRespErr.Error())
 			response.Resource.Ok = false
 			response.Resource.Error = "error while contacting auth server"
 
