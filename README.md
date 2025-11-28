@@ -9,7 +9,7 @@ And then, run `docker compose up -d` into project root to start project.
 
 ## Tests
 
-The easy way to run tests is just run `docker compose up -d` command to start project with variables. So, enter in `synk_gateway` with `docker exec` and run `go test ./tests -v`.
+The easy way to run tests is just run `docker compose up -d` command to start project with variables. So, enter in `synk_gateway` with `docker exec` and run `go test -v -coverpkg=./... -coverprofile=coverage.out ./tests`. To show more details about test coverage, you can run `go tool cover -func=coverage.out`.
 
 ## Certificates
 
